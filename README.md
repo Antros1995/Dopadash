@@ -6,6 +6,20 @@ rewards every small step with a little hit of dopamine.
 
 > 🇮🇹 The app interface is currently in **Italian**. Translations are very welcome!
 
+![DopaDash dashboard: sleep stages, recovery, health metrics, today's habits, calendar and tasks](docs/screenshots/home.png)
+
+<sub>All screenshots come from the built-in demo. Every number, habit and task in them is invented.</sub>
+
+## Try the demo in one minute
+
+No account, no database and no watch needed. The demo runs the real app
+with generated data:
+
+```powershell
+flutter pub get
+flutter run -d chrome -t tool/demo_app.dart
+```
+
 ## Why ADHD-friendly?
 
 Most productivity apps are built for brains that like long lists and quiet
@@ -37,6 +51,19 @@ grey screens. DopaDash is built for brains that don't.
 
 The default habits are only a starting point. You can rename, remove or add
 your own.
+
+## Screenshots
+
+| Daily: habits, screen time and today's cup | Statistics: how each habit is going |
+| --- | --- |
+| ![Daily page with screen time, today's cup and habit checklist](docs/screenshots/daily.png) | ![Habit statistics with a daily cup chart and success rate per habit](docs/screenshots/stats.png) |
+| **Sport: workouts, Fitbit activity and body measurements** | **To-do: personal and work tasks with due dates** |
+| ![Sport page with workout, walk, measured activity and body measurements](docs/screenshots/sport.png) | ![To-do page with tasks grouped into personal, work and side projects](docs/screenshots/todo.png) |
+
+<p align="center">
+  <img src="docs/screenshots/mobile.png" alt="Daily page on a phone with bottom navigation" width="260"><br>
+  <sub>It works on your phone too.</sub>
+</p>
 
 ## Tech stack
 
