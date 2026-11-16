@@ -5,7 +5,8 @@ from your Fitbit in one colourful place that shows one thing at a time and
 rewards every small step with a little hit of dopamine.
 
 > 🇮🇹 The app interface is currently in **Italian**. Translations are very welcome!
-[dopadash-demo.webm](https://github.com/user-attachments/assets/9032d5ca-14ed-4394-96d5-b0a91aa2d660)
+
+https://github.com/user-attachments/assets/9032d5ca-14ed-4394-96d5-b0a91aa2d660
 
 ![DopaDash dashboard: sleep stages, recovery, health metrics, today's habits, calendar and tasks](docs/screenshots/home.png)
 
