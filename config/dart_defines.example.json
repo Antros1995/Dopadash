@@ -1,0 +1,6 @@
+{
+  "SUPABASE_URL": "https://YOUR_PROJECT_REF.supabase.co",
+  "SUPABASE_PUBLISHABLE_KEY": "YOUR_PUBLISHABLE_KEY",
+  "AUTH_REDIRECT_URL": "http://localhost:7358/",
+  "PERSONAL_AGENT_API_URL": "http://localhost:8787/"
+}

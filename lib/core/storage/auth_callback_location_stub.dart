@@ -1,0 +1,1 @@
+void clearAuthCallbackFromAddressBar(Uri uri) {}

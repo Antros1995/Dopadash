@@ -1,0 +1,460 @@
+{
+  "format": "germoglio-diet-v1",
+  "id": "esempio-carbo-proteina",
+  "name": "Esempio Carbo + Proteina",
+  "from": "2027-01-04",
+  "to": "2027-01-31",
+  "calories": 1550,
+  "mealCalories": {
+    "colazione": 330,
+    "spuntino_mattina": 100,
+    "pranzo": 540,
+    "spuntino_pomeriggio": 110,
+    "cena": 470
+  },
+  "color": "#3469A2",
+  "meals": {
+    "colazione": [
+      {
+        "name": "Colazione",
+        "type": "OR",
+        "options": [
+          {
+            "name": "Avena + Yogurt greco",
+            "quantity": "40 g + 170 g",
+            "icon": "🥣",
+            "calories": 241
+          },
+          {
+            "name": "Fette biscottate + Ricotta",
+            "quantity": "30 g + 100 g",
+            "icon": "🍞",
+            "calories": 216
+          },
+          {
+            "name": "Pane + Uova",
+            "quantity": "50 g + 2 uova (110 g)",
+            "icon": "🥚",
+            "calories": 255,
+            "weeklyLimit": 2
+          }
+        ]
+      },
+      {
+        "name": "Frutta",
+        "type": "OR",
+        "options": [
+          {
+            "name": "Banana",
+            "quantity": "1 banana (120 g)",
+            "icon": "🍌",
+            "calories": 107
+          },
+          {
+            "name": "Mela",
+            "quantity": "1 mela (180 g)",
+            "icon": "🍎",
+            "calories": 94
+          },
+          {
+            "name": "Mirtilli",
+            "quantity": "1 vaschetta (125 g)",
+            "icon": "🫐",
+            "calories": 71
+          }
+        ]
+      }
+    ],
+    "spuntino_mattina": [
+      {
+        "name": "Spuntino",
+        "type": "OR",
+        "options": [
+          {
+            "name": "Mela",
+            "quantity": "1 mela (180 g)",
+            "icon": "🍎",
+            "calories": 94
+          },
+          {
+            "name": "Yogurt greco 0%",
+            "quantity": "1 vasetto (170 g)",
+            "icon": "🥛",
+            "calories": 92
+          },
+          {
+            "name": "Mandorle",
+            "quantity": "20 g",
+            "icon": "🌰",
+            "calories": 118
+          }
+        ]
+      }
+    ],
+    "pranzo": [
+      {
+        "name": "Piatto",
+        "type": "OR",
+        "options": [
+          {
+            "name": "Pasta + Pesce",
+            "icon": "🐟",
+            "groups": [
+              {
+                "name": "Carboidrato",
+                "type": "OR",
+                "options": [
+                  {
+                    "name": "Pasta integrale",
+                    "quantity": "80 g (peso crudo)",
+                    "icon": "🍝",
+                    "calories": 272
+                  }
+                ]
+              },
+              {
+                "name": "Pesce",
+                "type": "OR",
+                "options": [
+                  {
+                    "name": "Tonno al naturale",
+                    "quantity": "2 scatolette sgocciolate (112 g)",
+                    "icon": "🐟",
+                    "calories": 115
+                  },
+                  {
+                    "name": "Merluzzo",
+                    "quantity": "150 g",
+                    "icon": "🐟",
+                    "calories": 107
+                  },
+                  {
+                    "name": "Gamberi",
+                    "quantity": "150 g",
+                    "icon": "🦐",
+                    "calories": 107
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "name": "Riso + Carne bianca",
+            "icon": "🍗",
+            "groups": [
+              {
+                "name": "Carboidrato",
+                "type": "OR",
+                "options": [
+                  {
+                    "name": "Riso basmati",
+                    "quantity": "80 g (peso crudo)",
+                    "icon": "🍚",
+                    "calories": 284
+                  }
+                ]
+              },
+              {
+                "name": "Carne bianca",
+                "type": "OR",
+                "options": [
+                  {
+                    "name": "Petto di pollo",
+                    "quantity": "150 g",
+                    "icon": "🍗",
+                    "calories": 150
+                  },
+                  {
+                    "name": "Petto di tacchino",
+                    "quantity": "150 g",
+                    "icon": "🍗",
+                    "calories": 161
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "name": "Farro + Legumi",
+            "icon": "🫘",
+            "groups": [
+              {
+                "name": "Carboidrato",
+                "type": "OR",
+                "options": [
+                  {
+                    "name": "Farro",
+                    "quantity": "70 g (peso crudo)",
+                    "icon": "🌾",
+                    "calories": 235
+                  }
+                ]
+              },
+              {
+                "name": "Legumi",
+                "type": "OR",
+                "options": [
+                  {
+                    "name": "Ceci lessati",
+                    "quantity": "150 g",
+                    "icon": "🫘",
+                    "calories": 180
+                  },
+                  {
+                    "name": "Lenticchie lessate",
+                    "quantity": "150 g",
+                    "icon": "🫘",
+                    "calories": 174
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "Verdure",
+        "type": "OR",
+        "options": [
+          {
+            "name": "Zucchine",
+            "quantity": "200 g",
+            "icon": "🥒",
+            "calories": 34
+          },
+          {
+            "name": "Broccoli",
+            "quantity": "200 g",
+            "icon": "🥦",
+            "calories": 54
+          },
+          {
+            "name": "Insalata",
+            "quantity": "100 g",
+            "icon": "🥬",
+            "calories": 15
+          },
+          {
+            "name": "Fagiolini",
+            "quantity": "200 g",
+            "icon": "🫛",
+            "calories": 36
+          }
+        ]
+      },
+      {
+        "name": "Condimento",
+        "type": "AND",
+        "options": [
+          {
+            "name": "Olio extravergine d’oliva",
+            "quantity": "10 g (1 cucchiaio)",
+            "icon": "🫒",
+            "calories": 90
+          }
+        ]
+      }
+    ],
+    "spuntino_pomeriggio": [
+      {
+        "name": "Spuntino",
+        "type": "OR",
+        "options": [
+          {
+            "name": "Gallette + Bresaola",
+            "quantity": "2 gallette (16 g) + 40 g",
+            "icon": "🍘",
+            "calories": 121
+          },
+          {
+            "name": "Yogurt greco 0%",
+            "quantity": "1 vasetto (170 g)",
+            "icon": "🥛",
+            "calories": 92
+          },
+          {
+            "name": "Noci",
+            "quantity": "20 g",
+            "icon": "🌰",
+            "calories": 131
+          }
+        ]
+      }
+    ],
+    "cena": [
+      {
+        "name": "Piatto",
+        "type": "OR",
+        "options": [
+          {
+            "name": "Patate + Pesce",
+            "icon": "🐟",
+            "groups": [
+              {
+                "name": "Carboidrato",
+                "type": "OR",
+                "options": [
+                  {
+                    "name": "Patate",
+                    "quantity": "250 g (peso crudo)",
+                    "icon": "🥔",
+                    "calories": 213
+                  }
+                ]
+              },
+              {
+                "name": "Pesce",
+                "type": "OR",
+                "options": [
+                  {
+                    "name": "Orata",
+                    "quantity": "200 g",
+                    "icon": "🐟",
+                    "calories": 242
+                  },
+                  {
+                    "name": "Merluzzo",
+                    "quantity": "200 g",
+                    "icon": "🐟",
+                    "calories": 142
+                  },
+                  {
+                    "name": "Salmone fresco",
+                    "quantity": "150 g",
+                    "icon": "🐟",
+                    "calories": 278
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "name": "Pane + Carne rossa",
+            "icon": "🥩",
+            "weeklyLimit": 1,
+            "groups": [
+              {
+                "name": "Carboidrato",
+                "type": "OR",
+                "options": [
+                  {
+                    "name": "Pane integrale",
+                    "quantity": "60 g",
+                    "icon": "🍞",
+                    "calories": 137
+                  }
+                ]
+              },
+              {
+                "name": "Carne rossa",
+                "type": "OR",
+                "options": [
+                  {
+                    "name": "Manzo magro",
+                    "quantity": "150 g",
+                    "icon": "🥩",
+                    "calories": 165
+                  },
+                  {
+                    "name": "Vitello",
+                    "quantity": "150 g",
+                    "icon": "🥩",
+                    "calories": 138
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "name": "Riso + Uova",
+            "icon": "🥚",
+            "weeklyLimit": 2,
+            "groups": [
+              {
+                "name": "Carboidrato",
+                "type": "OR",
+                "options": [
+                  {
+                    "name": "Riso basmati",
+                    "quantity": "60 g (peso crudo)",
+                    "icon": "🍚",
+                    "calories": 213
+                  }
+                ]
+              },
+              {
+                "name": "Uova",
+                "type": "OR",
+                "options": [
+                  {
+                    "name": "Uova",
+                    "quantity": "2 uova (110 g)",
+                    "icon": "🥚",
+                    "calories": 141
+                  },
+                  {
+                    "name": "Frittata di albumi",
+                    "quantity": "200 g di albumi",
+                    "icon": "🥚",
+                    "calories": 86
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "Verdure",
+        "type": "OR",
+        "options": [
+          {
+            "name": "Zucchine",
+            "quantity": "200 g",
+            "icon": "🥒",
+            "calories": 34
+          },
+          {
+            "name": "Broccoli",
+            "quantity": "200 g",
+            "icon": "🥦",
+            "calories": 54
+          },
+          {
+            "name": "Insalata",
+            "quantity": "100 g",
+            "icon": "🥬",
+            "calories": 15
+          },
+          {
+            "name": "Fagiolini",
+            "quantity": "200 g",
+            "icon": "🫛",
+            "calories": 36
+          }
+        ]
+      },
+      {
+        "name": "Condimento",
+        "type": "AND",
+        "options": [
+          {
+            "name": "Olio extravergine d’oliva",
+            "quantity": "10 g (1 cucchiaio)",
+            "icon": "🫒",
+            "calories": 90
+          }
+        ]
+      }
+    ]
+  },
+  "routine": {
+    "waterTarget": 2.5,
+    "waterNote": "Distribuita durante la giornata",
+    "freeLimit": 1,
+    "activities": [
+      "Camminata",
+      "Palestra"
+    ]
+  }
+}

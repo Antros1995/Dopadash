@@ -1,0 +1,39 @@
+{
+  "name": "personal-agent",
+  "version": "0.7.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "cf-typegen": "wrangler types",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "check": "npm run cf-typegen && npm run typecheck && npm run lint && npm test",
+    "telegram:webhook": "node scripts/configure-telegram-webhook.mjs"
+  },
+  "dependencies": {
+    "agents": "^0.20.1",
+    "openai": "^7.4.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@types/node": "^26.2.0",
+    "eslint": "^10.8.1",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.67.0",
+    "vitest": "^4.1.10",
+    "wrangler": "^4.120.1"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "allowScripts": {
+    "workerd@1.20260804.1": true,
+    "esbuild@0.28.2": true,
+    "esbuild@0.28.1": true,
+    "core-js-pure@3.50.0": true
+  }
+}

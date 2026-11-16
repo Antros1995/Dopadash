@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>S&amp;P 500 a blocchi</title>
+<style>
+  html, body { height: 100%; margin: 0; background: #fff; font: 13px -apple-system, "Segoe UI", sans-serif; color: #6e6e73; }
+  .tradingview-widget-container, .tradingview-widget-container__widget { height: 100%; width: 100%; }
+  #wait { position: absolute; inset: 0; display: grid; place-items: center; z-index: -1; }
+</style>
+</head>
+<body>
+<!-- Mappa dell'S&P 500 fornita da TradingView: un blocco per società, grande
+     quanto la capitalizzazione, colorato per la variazione di giornata. -->
+<div id="wait">Carico la mappa dell’S&amp;P 500…</div>
+<div class="tradingview-widget-container">
+  <div class="tradingview-widget-container__widget"></div>
+  <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-stock-heatmap.js" async>
+  {
+    "exchanges": [],
+    "dataSource": "SPX500",
+    "grouping": "sector",
+    "blockSize": "market_cap_basic",
+    "blockColor": "change",
+    "locale": "it",
+    "symbolUrl": "",
+    "colorTheme": "light",
+    "hasTopBar": true,
+    "isDataSetEnabled": false,
+    "isZoomEnabled": true,
+    "hasSymbolTooltip": true,
+    "isMonoSize": false,
+    "width": "100%",
+    "height": "100%"
+  }
+  </script>
+</div>
+</body>
+</html>
