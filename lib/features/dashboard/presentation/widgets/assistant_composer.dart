@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 
 import '../../../../app/theme.dart';
+import '../../../../core/i18n/i18n.dart';
 
 class AssistantComposer extends StatefulWidget {
   const AssistantComposer({super.key});
@@ -36,9 +37,12 @@ class _AssistantComposerState extends State<AssistantComposer> {
   void _send() {
     if (_controller.text.trim().isEmpty) return;
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
+      SnackBar(
         content: Text(
-          'Il backend condiviso dell’assistente non è ancora esposto in modo sicuro al desktop.',
+          tr(
+            'Il backend condiviso dell’assistente non è ancora esposto in modo sicuro al desktop.',
+            'The assistant’s shared backend isn’t safely exposed to the desktop yet.',
+          ),
         ),
       ),
     );
@@ -111,8 +115,11 @@ class _AssistantComposerState extends State<AssistantComposer> {
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
                       ),
-                      decoration: const InputDecoration(
-                        hintText: 'Chiedimi qualcosa sulla tua giornata…',
+                      decoration: InputDecoration(
+                        hintText: tr(
+                          'Chiedimi qualcosa sulla tua giornata…',
+                          'Ask me something about your day…',
+                        ),
                         hintStyle: TextStyle(
                           color: AppColors.textMuted,
                           fontWeight: FontWeight.w400,
@@ -130,7 +137,7 @@ class _AssistantComposerState extends State<AssistantComposer> {
                     const SizedBox(width: AppSpacing.xs),
                     IconButton(
                       onPressed: _send,
-                      tooltip: 'Invia',
+                      tooltip: tr('Invia', 'Send'),
                       style: IconButton.styleFrom(
                         minimumSize: const Size.square(40),
                         backgroundColor: AppColors.green,
@@ -143,12 +150,17 @@ class _AssistantComposerState extends State<AssistantComposer> {
                   IconButton(
                     onPressed: () {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Input vocale non ancora disponibile.'),
+                        SnackBar(
+                          content: Text(
+                            tr(
+                              'Input vocale non ancora disponibile.',
+                              'Voice input not available yet.',
+                            ),
+                          ),
                         ),
                       );
                     },
-                    tooltip: 'Input vocale',
+                    tooltip: tr('Input vocale', 'Voice input'),
                     style: IconButton.styleFrom(
                       minimumSize: const Size.square(40),
                       backgroundColor: const Color(0xCCF2F2F4),

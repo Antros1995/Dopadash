@@ -3,6 +3,8 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
 import '../../../app/theme.dart';
+import '../../../core/i18n/i18n.dart';
+import '../../../core/utils/date_formatters.dart';
 
 /// Andamento di una misura nel tempo (peso, vita, …).
 ///
@@ -23,10 +25,8 @@ class TrendChart extends StatefulWidget {
   final Color color;
   final double height;
 
-  static String number(double v) => v
-      .toStringAsFixed(1)
-      .replaceAll(RegExp(r'\.0$'), '')
-      .replaceAll('.', ',');
+  static String number(double v) =>
+      decimal(v.toStringAsFixed(1).replaceAll(RegExp(r'\.0$'), ''));
 
   @override
   State<TrendChart> createState() => _TrendChartState();
@@ -56,9 +56,12 @@ class _TrendChartState extends State<TrendChart> {
     if (widget.points.isEmpty) {
       return SizedBox(
         height: widget.height,
-        child: const Center(
+        child: Center(
           child: Text(
-            'Nessuna misura in questo periodo.',
+            tr(
+              'Nessuna misura in questo periodo.',
+              'No measurements in this period.',
+            ),
             style: TextStyle(fontSize: 12.5, color: AppColors.textMuted),
           ),
         ),
@@ -73,14 +76,17 @@ class _TrendChartState extends State<TrendChart> {
           child: GestureDetector(
             behavior: HitTestBehavior.opaque,
             onTapDown: (e) => _point(e.localPosition, box.maxWidth),
-            onHorizontalDragUpdate: (e) => _point(e.localPosition, box.maxWidth),
+            onHorizontalDragUpdate: (e) =>
+                _point(e.localPosition, box.maxWidth),
             child: CustomPaint(
               size: Size(box.maxWidth, widget.height),
               painter: _TrendPainter(
                 widget.points,
                 widget.unit,
                 widget.color,
-                _hover != null && _hover! < widget.points.length ? _hover : null,
+                _hover != null && _hover! < widget.points.length
+                    ? _hover
+                    : null,
               ),
             ),
           ),
@@ -90,20 +96,7 @@ class _TrendChartState extends State<TrendChart> {
   }
 }
 
-const _months = [
-  'gen',
-  'feb',
-  'mar',
-  'apr',
-  'mag',
-  'giu',
-  'lug',
-  'ago',
-  'set',
-  'ott',
-  'nov',
-  'dic',
-];
+String _month(int month) => monthName(month).substring(0, 3);
 
 String _two(int n) => n.toString().padLeft(2, '0');
 String _fullDate(DateTime d) => '${_two(d.day)}/${_two(d.month)}/${d.year}';
@@ -119,15 +112,26 @@ class _Geometry {
     }
     // Passo "tondo": 0,5 · 1 · 2 · 5 · 10…
     final raw = (hi - lo) / 3;
-    final magnitude = math.pow(10, (math.log(raw) / math.ln10).floor()).toDouble();
+    final magnitude = math
+        .pow(10, (math.log(raw) / math.ln10).floor())
+        .toDouble();
     final ratio = raw / magnitude;
-    step = (ratio <= 1 ? 1 : ratio <= 2 ? 2 : ratio <= 5 ? 5 : 10) * magnitude;
+    step =
+        (ratio <= 1
+            ? 1
+            : ratio <= 2
+            ? 2
+            : ratio <= 5
+            ? 5
+            : 10) *
+        magnitude;
     min = (lo / step).floor() * step;
     max = (hi / step).ceil() * step;
     if (max - min < step) max = min + step;
-    final widest = [min, max]
-        .map((v) => _measure(TrendChart.number(v)).width)
-        .reduce(math.max);
+    final widest = [
+      min,
+      max,
+    ].map((v) => _measure(TrendChart.number(v)).width).reduce(math.max);
     plot = Rect.fromLTRB(widest + 10, 22, size.width - 14, size.height - 24);
     first = points.first.$1;
     span = math.max(1, points.last.$1.difference(first).inHours).toDouble();
@@ -177,19 +181,24 @@ class _TrendPainter extends CustomPainter {
       final y = plot.bottom - plot.height * (v - g.min) / (g.max - g.min);
       canvas.drawLine(Offset(plot.left, y), Offset(plot.right, y), grid);
       final label = _Geometry._measure(TrendChart.number(v));
-      label.paint(canvas, Offset(plot.left - 8 - label.width, y - label.height / 2));
+      label.paint(
+        canvas,
+        Offset(plot.left - 8 - label.width, y - label.height / 2),
+      );
     }
 
     // Date: giorno/mese sui periodi brevi, mese e anno su quelli lunghi.
     final days = points.last.$1.difference(points.first.$1).inDays;
-    final ticks = points.length == 1 ? 1 : math.min(5, math.max(2, plot.width ~/ 110));
+    final ticks = points.length == 1
+        ? 1
+        : math.min(5, math.max(2, plot.width ~/ 110));
     var lastRight = -double.infinity;
     for (var i = 0; i < ticks; i++) {
       final f = ticks == 1 ? .5 : i / (ticks - 1);
       final date = g.first.add(Duration(hours: (g.span * f).round()));
       final text = days <= 120
-          ? '${_two(date.day)} ${_months[date.month - 1]}'
-          : '${_months[date.month - 1]} ${_two(date.year % 100)}';
+          ? '${_two(date.day)} ${_month(date.month)}'
+          : '${_month(date.month)} ${_two(date.year % 100)}';
       final label = _Geometry._measure(text);
       final x = (plot.left + plot.width * f - label.width / 2).clamp(
         plot.left,
@@ -216,7 +225,10 @@ class _TrendPainter extends CustomPainter {
           ..shader = LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [color.withValues(alpha: .20), color.withValues(alpha: .02)],
+            colors: [
+              color.withValues(alpha: .20),
+              color.withValues(alpha: .02),
+            ],
           ).createShader(plot),
       );
       canvas.drawPath(

@@ -1,3 +1,5 @@
+import '../../../core/i18n/i18n.dart';
+
 enum RoutineStatus { unmarked, ok, ko }
 
 class RoutineDetailOption {
@@ -200,82 +202,92 @@ String formatDate(DateTime value) {
       '${date.day.toString().padLeft(2, '0')}';
 }
 
-const defaultNutritionOptions = <RoutineDetailOption>[
+/// Default options, named in the interface language when they are created.
+List<RoutineDetailOption> get defaultNutritionOptions => <RoutineDetailOption>[
   RoutineDetailOption(
     id: 'alimentazione_sgarro_lieve',
-    label: 'Livello 1 - lieve',
+    label: tr('Livello 1 - lieve', 'Level 1 - minor'),
     position: 0,
     score: 0.75,
   ),
   RoutineDetailOption(
     id: 'alimentazione_sgarro_moderato',
-    label: 'Livello 2 - moderato',
+    label: tr('Livello 2 - moderato', 'Level 2 - moderate'),
     position: 1,
     score: 0.50,
   ),
   RoutineDetailOption(
     id: 'alimentazione_sgarro_importante',
-    label: 'Livello 3 - importante',
+    label: tr('Livello 3 - importante', 'Level 3 - major'),
     position: 2,
     score: 0.25,
   ),
   RoutineDetailOption(
     id: 'alimentazione_sgarro_grave',
-    label: 'Livello 4 - grave',
+    label: tr('Livello 4 - grave', 'Level 4 - severe'),
     position: 3,
     score: 0,
   ),
 ];
 
-const defaultGymOptions = <RoutineDetailOption>[
-  RoutineDetailOption(id: 'palestra_forza', label: 'Forza', position: 0),
+List<RoutineDetailOption> get defaultGymOptions => <RoutineDetailOption>[
+  RoutineDetailOption(
+    id: 'palestra_forza',
+    label: tr('Forza', 'Strength'),
+    position: 0,
+  ),
   RoutineDetailOption(id: 'palestra_cardio', label: 'Cardio', position: 1),
   RoutineDetailOption(
     id: 'palestra_mobilita',
-    label: 'Mobilità e stretching',
+    label: tr('Mobilità e stretching', 'Mobility & stretching'),
     position: 2,
   ),
 ];
 
 /// Abitudini proposte al primo avvio. Ognuno può rinominarle, toglierle o
 /// aggiungerne di nuove dall'app: sono solo un punto di partenza.
-const _currentDefaults = <RoutineDefinition>[
+List<RoutineDefinition> get _currentDefaults => <RoutineDefinition>[
   RoutineDefinition(
     id: 'meditazione',
-    name: 'Meditazione',
+    name: tr('Meditazione', 'Meditation'),
     iconKey: 'meditation',
     position: 0,
   ),
   RoutineDefinition(
     id: 'palestra',
-    name: 'Allenamento',
+    name: tr('Allenamento', 'Workout'),
     iconKey: 'gym',
     position: 1,
     detailOptions: defaultGymOptions,
   ),
   RoutineDefinition(
     id: 'alimentazione',
-    name: 'Alimentazione',
+    name: tr('Alimentazione', 'Nutrition'),
     iconKey: 'food',
     position: 2,
     detailOptions: defaultNutritionOptions,
   ),
   RoutineDefinition(
     id: 'studio',
-    name: 'Studio',
+    name: tr('Studio', 'Study'),
     iconKey: 'study',
     position: 3,
   ),
-  RoutineDefinition(id: 'libro', name: 'Lettura', iconKey: 'book', position: 4),
+  RoutineDefinition(
+    id: 'libro',
+    name: tr('Lettura', 'Reading'),
+    iconKey: 'book',
+    position: 4,
+  ),
   RoutineDefinition(
     id: 'diario',
-    name: 'Diario',
+    name: tr('Diario', 'Journal'),
     iconKey: 'journal',
     position: 5,
   ),
   RoutineDefinition(
     id: 'camminata',
-    name: 'Camminata',
+    name: tr('Camminata', 'Walk'),
     iconKey: 'walking',
     position: 6,
   ),

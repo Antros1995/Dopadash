@@ -3,6 +3,8 @@ import '../../../app/theme.dart';
 import '../../../core/presentation/responsive_layout.dart';
 import '../../fitbit/application/fitbit_controller.dart';
 import '../../routines/application/routine_controller.dart';
+import '../../../core/i18n/i18n.dart';
+import '../../../core/i18n/names.dart';
 
 /// Shared application frame; owns no data or synchronization logic.
 class DashboardFrame extends StatelessWidget {
@@ -64,7 +66,7 @@ class DashboardFrame extends StatelessWidget {
                     // Con nove schede il nome dell'app trova posto solo sugli schermi larghi.
                     if (box.maxWidth >= 1560) ...[
                       const SizedBox(width: 12),
-                      const SizedBox(
+                      SizedBox(
                         width: 180,
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -82,7 +84,10 @@ class DashboardFrame extends StatelessWidget {
                               ),
                             ),
                             Text(
-                              'La tua vita, in equilibrio',
+                              tr(
+                                'La tua vita, in equilibrio',
+                                'Your life, in balance',
+                              ),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               style: TextStyle(
@@ -101,61 +106,61 @@ class DashboardFrame extends StatelessWidget {
                         child: Row(
                           children: [
                             _TopButton(
-                              label: 'Monitoraggio',
+                              label: pageName(0),
                               icon: Icons.grid_view_outlined,
                               selected: selectedPage == 0,
                               onTap: () => onPage(0),
                             ),
                             _TopButton(
-                              label: 'Organizzatore',
+                              label: pageName(7),
                               icon: Icons.sticky_note_2_outlined,
                               selected: selectedPage == 7,
                               onTap: () => onPage(7),
                             ),
                             _TopButton(
-                              label: 'Quotidianità',
+                              label: pageName(8),
                               icon: Icons.wb_sunny_outlined,
                               selected: selectedPage == 8,
                               onTap: () => onPage(8),
                             ),
                             _TopButton(
-                              label: 'Sport',
+                              label: pageName(9),
                               icon: Icons.fitness_center,
                               selected: selectedPage == 9,
                               onTap: () => onPage(9),
                             ),
                             _TopButton(
-                              label: 'To Do',
+                              label: pageName(1),
                               icon: Icons.task_alt,
                               selected: selectedPage == 1,
                               onTap: () => onPage(1),
                             ),
                             _TopButton(
-                              label: 'Borsa',
+                              label: pageName(2),
                               icon: Icons.work_outline,
                               selected: selectedPage == 2,
                               onTap: () => onPage(2),
                             ),
                             _TopButton(
-                              label: 'Spese',
+                              label: pageName(3),
                               icon: Icons.account_balance_wallet_outlined,
                               selected: selectedPage == 3,
                               onTap: () => onPage(3),
                             ),
                             _TopButton(
-                              label: 'Investimenti',
+                              label: pageName(4),
                               icon: Icons.trending_up,
                               selected: selectedPage == 4,
                               onTap: () => onPage(4),
                             ),
                             _TopButton(
-                              label: 'Statistiche',
+                              label: pageName(6),
                               icon: Icons.bar_chart_outlined,
                               selected: selectedPage == 6,
                               onTap: () => onPage(6),
                             ),
                             _TopButton(
-                              label: 'Vestiti',
+                              label: pageName(10),
                               icon: Icons.checkroom,
                               selected: selectedPage == 10,
                               onTap: () => onPage(10),
@@ -171,10 +176,10 @@ class DashboardFrame extends StatelessWidget {
                         child: OutlinedButton.icon(
                           onPressed: onSearch,
                           icon: const Icon(Icons.search, size: 16),
-                          label: const Align(
+                          label: Align(
                             alignment: Alignment.centerLeft,
                             child: Text(
-                              'Cerca attività…',
+                              tr('Cerca attività…', 'Search tasks…'),
                               style: TextStyle(
                                 fontSize: 12.5,
                                 fontWeight: FontWeight.w400,
@@ -195,17 +200,20 @@ class DashboardFrame extends StatelessWidget {
                       )
                     else
                       IconButton(
-                        tooltip: 'Cerca attività',
+                        tooltip: tr('Cerca attività', 'Search tasks'),
                         onPressed: onSearch,
                         icon: const Icon(Icons.search, size: 20),
                       ),
                     IconButton(
-                      tooltip: 'Stato sincronizzazione',
+                      tooltip: tr('Stato sincronizzazione', 'Sync status'),
                       onPressed: onStatus,
                       icon: const Icon(Icons.notifications_none, size: 21),
                     ),
                     IconButton(
-                      tooltip: 'Account e impostazioni',
+                      tooltip: tr(
+                        'Account e impostazioni',
+                        'Account & settings',
+                      ),
                       onPressed: onSettings,
                       icon: const Icon(Icons.settings_outlined, size: 21),
                     ),
@@ -265,7 +273,7 @@ class DashboardFrame extends StatelessWidget {
                                           selectedPage,
                                         ))
                                           _SideButton(
-                                            label: entry.$1,
+                                            label: sectionLabel(entry.$1),
                                             icon: entry.$2,
                                             expanded: expanded,
                                             selected: section == entry.$1,
@@ -281,7 +289,7 @@ class DashboardFrame extends StatelessWidget {
                                           child: Divider(height: 1),
                                         ),
                                         _SideButton(
-                                          label: 'Esporta dati',
+                                          label: pageName(5),
                                           icon: Icons.file_download_outlined,
                                           expanded: expanded,
                                           selected: selectedPage == 5,
@@ -323,13 +331,28 @@ class DashboardFrame extends StatelessWidget {
                                               ? Icons.sync_problem
                                               : Icons.sync,
                                           title: syncing
-                                              ? 'Sincronizzazione…'
+                                              ? tr(
+                                                  'Sincronizzazione…',
+                                                  'Syncing…',
+                                                )
                                               : failed
-                                              ? 'Controlla connessione'
-                                              : 'Dati aggiornati',
+                                              ? tr(
+                                                  'Controlla connessione',
+                                                  'Check connection',
+                                                )
+                                              : tr(
+                                                  'Dati aggiornati',
+                                                  'Data up to date',
+                                                ),
                                           detail: fitbit.day == null
-                                              ? 'In attesa dei dati'
-                                              : 'Ultimo dato ${fitbit.day!.date}',
+                                              ? tr(
+                                                  'In attesa dei dati',
+                                                  'Waiting for data',
+                                                )
+                                              : tr(
+                                                  'Ultimo dato ${fitbit.day!.date}',
+                                                  'Latest data ${fitbit.day!.date}',
+                                                ),
                                           color: failed
                                               ? AppColors.warning
                                               : AppColors.green,
@@ -342,8 +365,11 @@ class DashboardFrame extends StatelessWidget {
                                               fitbit.status?.deviceName ??
                                               'Fitbit',
                                           detail: fitbit.isConnected
-                                              ? 'Connesso'
-                                              : 'Non connesso',
+                                              ? tr('Connesso', 'Connected')
+                                              : tr(
+                                                  'Non connesso',
+                                                  'Not connected',
+                                                ),
                                           color: fitbit.isConnected
                                               ? AppColors.green
                                               : AppColors.textMuted,
@@ -354,8 +380,11 @@ class DashboardFrame extends StatelessWidget {
                                           icon: Icons.favorite_outline,
                                           title: 'Google Health',
                                           detail: fitbit.isConnected
-                                              ? 'Connesso'
-                                              : 'Non connesso',
+                                              ? tr('Connesso', 'Connected')
+                                              : tr(
+                                                  'Non connesso',
+                                                  'Not connected',
+                                                ),
                                           color: fitbit.isConnected
                                               ? AppColors.green
                                               : AppColors.textMuted,
@@ -380,15 +409,15 @@ class DashboardFrame extends StatelessWidget {
   );
 
   Widget _phoneFrame(BuildContext context) {
-    const destinations = [
-      (0, 'Home', Icons.home_outlined),
-      (8, 'Quotidiano', Icons.wb_sunny_outlined),
-      (9, 'Sport', Icons.fitness_center),
-      (7, 'Organizza', Icons.sticky_note_2_outlined),
-      (1, 'To Do', Icons.task_alt),
+    final destinations = [
+      (0, tr('Home', 'Home'), Icons.home_outlined),
+      (8, tr('Quotidiano', 'Daily'), Icons.wb_sunny_outlined),
+      (9, pageName(9), Icons.fitness_center),
+      (7, tr('Organizza', 'Organize'), Icons.sticky_note_2_outlined),
+      (1, pageName(1), Icons.task_alt),
     ];
     final selected = destinations.indexWhere((d) => d.$1 == selectedPage);
-    final name = _pageName(selectedPage);
+    final name = pageName(selectedPage);
     return Scaffold(
       key: const ValueKey('phone-frame'),
       backgroundColor: AppColors.canvas,
@@ -467,12 +496,12 @@ class DashboardFrame extends StatelessWidget {
                       ),
                     ),
                     IconButton(
-                      tooltip: 'Cerca attività',
+                      tooltip: tr('Cerca attività', 'Search tasks'),
                       onPressed: onSearch,
                       icon: const Icon(Icons.search),
                     ),
                     IconButton(
-                      tooltip: 'Apri sezioni',
+                      tooltip: tr('Apri sezioni', 'Open sections'),
                       onPressed: () => _phoneMenu(context, sections: true),
                       icon: const Icon(Icons.menu),
                     ),
@@ -517,7 +546,7 @@ class DashboardFrame extends StatelessWidget {
                         ),
                       Expanded(
                         child: _PhoneDestination(
-                          label: 'Altro',
+                          label: tr('Altro', 'More'),
                           icon: Icons.more_horiz,
                           selected: selected < 0,
                           onTap: () => _phoneMenu(context),
@@ -549,8 +578,11 @@ class DashboardFrame extends StatelessWidget {
           children: [
             Text(
               sections
-                  ? 'Sezioni · ${_pageName(selectedPage)}'
-                  : 'Il tuo spazio',
+                  ? tr(
+                      'Sezioni · ${pageName(selectedPage)}',
+                      'Sections · ${pageName(selectedPage)}',
+                    )
+                  : tr('Il tuo spazio', 'Your space'),
               style: const TextStyle(
                 fontSize: 21,
                 fontWeight: FontWeight.w700,
@@ -562,7 +594,7 @@ class DashboardFrame extends StatelessWidget {
               for (final entry in _sections(selectedPage))
                 ListTile(
                   leading: Icon(entry.$2),
-                  title: Text(entry.$1),
+                  title: Text(sectionLabel(entry.$1)),
                   selected: section == entry.$1,
                   selectedColor: AppColors.green,
                   shape: RoundedRectangleBorder(
@@ -577,17 +609,17 @@ class DashboardFrame extends StatelessWidget {
               const Divider(height: 24),
             ],
             for (final entry in [
-              (0, 'Monitoraggio', Icons.home_outlined),
-              (7, 'Organizzatore', Icons.sticky_note_2_outlined),
-              (8, 'Quotidianità', Icons.wb_sunny_outlined),
-              (9, 'Sport', Icons.fitness_center),
-              (1, 'To Do', Icons.task_alt),
-              (6, 'Statistiche', Icons.bar_chart_outlined),
-              (3, 'Spese', Icons.account_balance_wallet_outlined),
-              (2, 'Borsa', Icons.work_outline),
-              (4, 'Investimenti', Icons.trending_up),
-              (10, 'Vestiti', Icons.checkroom),
-              (5, 'Esporta dati', Icons.file_download_outlined),
+              (0, pageName(0), Icons.home_outlined),
+              (7, pageName(7), Icons.sticky_note_2_outlined),
+              (8, pageName(8), Icons.wb_sunny_outlined),
+              (9, pageName(9), Icons.fitness_center),
+              (1, pageName(1), Icons.task_alt),
+              (6, pageName(6), Icons.bar_chart_outlined),
+              (3, pageName(3), Icons.account_balance_wallet_outlined),
+              (2, pageName(2), Icons.work_outline),
+              (4, pageName(4), Icons.trending_up),
+              (10, pageName(10), Icons.checkroom),
+              (5, pageName(5), Icons.file_download_outlined),
             ])
               ListTile(
                 leading: Icon(entry.$3),
@@ -602,7 +634,7 @@ class DashboardFrame extends StatelessWidget {
             const Divider(height: 24),
             ListTile(
               leading: const Icon(Icons.sync),
-              title: const Text('Stato sincronizzazione'),
+              title: Text(tr('Stato sincronizzazione', 'Sync status')),
               onTap: () {
                 Navigator.pop(sheetContext);
                 onStatus();
@@ -610,7 +642,7 @@ class DashboardFrame extends StatelessWidget {
             ),
             ListTile(
               leading: const Icon(Icons.settings_outlined),
-              title: const Text('Account e impostazioni'),
+              title: Text(tr('Account e impostazioni', 'Account & settings')),
               onTap: () {
                 Navigator.pop(sheetContext);
                 onSettings();
@@ -622,20 +654,6 @@ class DashboardFrame extends StatelessWidget {
     );
   }
 }
-
-String _pageName(int page) => switch (page) {
-  1 => 'To Do',
-  2 => 'Borsa',
-  3 => 'Spese',
-  4 => 'Investimenti',
-  5 => 'Esporta dati',
-  6 => 'Statistiche',
-  7 => 'Organizzatore',
-  8 => 'Quotidianità',
-  9 => 'Sport',
-  10 => 'Vestiti',
-  _ => 'Monitoraggio',
-};
 
 class _PhoneDestination extends StatelessWidget {
   const _PhoneDestination({

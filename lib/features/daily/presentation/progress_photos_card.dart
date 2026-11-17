@@ -5,6 +5,7 @@ import '../../../core/platform/image_pick.dart';
 import '../../../core/presentation/mac_widgets.dart';
 import '../../wardrobe/wardrobe_repository.dart';
 import 'daily_widgets.dart';
+import '../../../core/i18n/i18n.dart';
 
 /// Foto dei progressi. Restano nascoste: non vengono nemmeno scaricate finché
 /// non si preme "Apri le foto". Una volta aperte si confrontano due date
@@ -45,7 +46,9 @@ class _ProgressPhotosCardState extends State<ProgressPhotosCard> {
         _photos = photos;
         _loading = false;
         final dates = _dates;
-        if (!keepSelection || !dates.contains(_before) || !dates.contains(_after)) {
+        if (!keepSelection ||
+            !dates.contains(_before) ||
+            !dates.contains(_after)) {
           // Di partenza: la prima sessione contro l'ultima.
           _before = dates.isEmpty ? null : dates.first;
           _after = dates.isEmpty ? null : dates.last;
@@ -80,7 +83,7 @@ class _ProgressPhotosCardState extends State<ProgressPhotosCard> {
       initialDate: widget.today,
       firstDate: DateTime(2020),
       lastDate: widget.today,
-      helpText: 'Data delle foto',
+      helpText: tr('Data delle foto', 'Photo date'),
     );
     if (date == null) return;
     final image = await pickImage(maxSide: 1600);
@@ -89,7 +92,9 @@ class _ProgressPhotosCardState extends State<ProgressPhotosCard> {
     try {
       await widget.repository.add(date, image.bytes);
       await _load(keepSelection: true);
-      if (mounted) setState(() => _after = DateTime(date.year, date.month, date.day));
+      if (mounted) {
+        setState(() => _after = DateTime(date.year, date.month, date.day));
+      }
     } catch (e) {
       if (mounted) setState(() => _error = e);
     }
@@ -100,17 +105,22 @@ class _ProgressPhotosCardState extends State<ProgressPhotosCard> {
     final ok = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Eliminare questa foto?'),
-        content: const Text('Sparisce anche dall’app per iPhone. Non si può annullare.'),
+        title: Text(tr('Eliminare questa foto?', 'Delete this photo?')),
+        content: Text(
+          tr(
+            'Sparisce anche dall’app per iPhone. Non si può annullare.',
+            'It also disappears from the iPhone app. This can’t be undone.',
+          ),
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Annulla'),
+            child: Text(tr('Annulla', 'Cancel')),
           ),
           FilledButton(
             onPressed: () => Navigator.pop(context, true),
             style: FilledButton.styleFrom(backgroundColor: AppColors.danger),
-            child: const Text('Elimina'),
+            child: Text(tr('Elimina', 'Delete')),
           ),
         ],
       ),
@@ -140,7 +150,7 @@ class _ProgressPhotosCardState extends State<ProgressPhotosCard> {
             child: IconButton.filledTonal(
               onPressed: () => Navigator.pop(context),
               icon: const Icon(Icons.close),
-              tooltip: 'Chiudi',
+              tooltip: tr('Chiudi', 'Close'),
             ),
           ),
         ],
@@ -148,7 +158,11 @@ class _ProgressPhotosCardState extends State<ProgressPhotosCard> {
     ),
   );
 
-  Widget _column(String title, DateTime? selected, ValueChanged<DateTime> onChanged) {
+  Widget _column(
+    String title,
+    DateTime? selected,
+    ValueChanged<DateTime> onChanged,
+  ) {
     final dates = _dates;
     final photos = [
       for (final p in _photos)
@@ -191,7 +205,10 @@ class _ProgressPhotosCardState extends State<ProgressPhotosCard> {
                         DropdownMenuItem(
                           value: d,
                           child: Text(
-                            '${label(d)} · ${_photos.where((p) => p.date == d).length} foto',
+                            tr(
+                              '${label(d)} · ${_photos.where((p) => p.date == d).length} foto',
+                              '${label(d)} · ${_photos.where((p) => p.date == d).length} photos',
+                            ),
                           ),
                         ),
                     ],
@@ -271,15 +288,26 @@ class _ProgressPhotosCardState extends State<ProgressPhotosCard> {
     return DailySection(
       icon: Icons.photo_library_outlined,
       color: dailyPurple,
-      title: 'Foto dei progressi',
-      status: MacChip(_open ? '${_photos.length} foto' : '🔒 Nascoste'),
+      title: tr('Foto dei progressi', 'Progress photos'),
+      status: MacChip(
+        _open
+            ? tr('${_photos.length} foto', '${_photos.length} photos')
+            : tr('🔒 Nascoste', '🔒 Hidden'),
+      ),
       action: TextButton(
         onPressed: _toggle,
-        child: Text(_open ? 'Nascondi' : 'Apri le foto'),
+        child: Text(
+          _open
+              ? tr('Nascondi', 'Hide')
+              : tr('Apri le foto', 'Open the photos'),
+        ),
       ),
       child: !_open
-          ? const Text(
-              'Le foto restano chiuse e non vengono scaricate finché non le apri. Dentro puoi confrontare due date fianco a fianco e aggiungerne di nuove.',
+          ? Text(
+              tr(
+                'Le foto restano chiuse e non vengono scaricate finché non le apri. Dentro puoi confrontare due date fianco a fianco e aggiungerne di nuove.',
+                'Photos stay locked and aren’t downloaded until you open them. Inside you can compare two dates side by side and add new ones.',
+              ),
               style: TextStyle(fontSize: 13, color: AppColors.textMuted),
             )
           : _loading && _photos.isEmpty
@@ -300,21 +328,33 @@ class _ProgressPhotosCardState extends State<ProgressPhotosCard> {
                       FilledButton.icon(
                         onPressed: _busy ? null : _add,
                         icon: const Icon(Icons.add_a_photo_outlined, size: 16),
-                        label: Text(_busy ? 'Carico…' : 'Aggiungi foto'),
+                        label: Text(
+                          _busy
+                              ? tr('Carico…', 'Uploading…')
+                              : tr('Aggiungi foto', 'Add photos'),
+                        ),
                         style: FilledButton.styleFrom(
                           minimumSize: const Size(0, 32),
                           padding: const EdgeInsets.symmetric(horizontal: 12),
                         ),
                       ),
-                    MacChip('${dates.length} ${dates.length == 1 ? 'data' : 'date'}'),
+                    MacChip(
+                      '${dates.length} ${dates.length == 1 ? tr('data', 'date') : tr('date', 'dates')}',
+                    ),
                     if (days != null && days > 0)
-                      MacChip('$days giorni tra le due', tone: dailyPurple),
+                      MacChip(
+                        tr('$days giorni tra le due', '$days days apart'),
+                        tone: dailyPurple,
+                      ),
                   ],
                 ),
                 const SizedBox(height: 12),
                 if (dates.isEmpty)
-                  const Text(
-                    'Nessuna foto ancora. Aggiungi la prima: dalla seconda data in poi potrai confrontarle.',
+                  Text(
+                    tr(
+                      'Nessuna foto ancora. Aggiungi la prima: dalla seconda data in poi potrai confrontarle.',
+                      'No photos yet. Add the first one: from the second date on you can compare them.',
+                    ),
                     style: TextStyle(fontSize: 13, color: AppColors.textMuted),
                   )
                 else
@@ -323,7 +363,7 @@ class _ProgressPhotosCardState extends State<ProgressPhotosCard> {
                     children: [
                       Expanded(
                         child: _column(
-                          'PRIMA',
+                          tr('PRIMA', 'BEFORE'),
                           _before,
                           (d) => setState(() => _before = d),
                         ),
@@ -331,7 +371,7 @@ class _ProgressPhotosCardState extends State<ProgressPhotosCard> {
                       const SizedBox(width: 10),
                       Expanded(
                         child: _column(
-                          'DOPO',
+                          tr('DOPO', 'AFTER'),
                           _after,
                           (d) => setState(() => _after = d),
                         ),

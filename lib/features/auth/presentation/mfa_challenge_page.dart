@@ -4,6 +4,7 @@ import '../../../app/theme.dart';
 import '../application/mfa_controller.dart';
 import 'auth_error_message.dart';
 import 'mfa_widgets.dart';
+import '../../../core/i18n/i18n.dart';
 
 /// This gate also wraps password recovery: an email link cannot skip MFA.
 class MfaAccessGate extends StatelessWidget {
@@ -113,30 +114,47 @@ class _MfaChallengePageState extends State<MfaChallengePage> {
                         ),
                         const SizedBox(height: 20),
                         Text(
-                          'Verifica in due passaggi',
+                          tr(
+                            'Verifica in due passaggi',
+                            'Two-step verification',
+                          ),
                           style: Theme.of(context).textTheme.headlineSmall,
                         ),
                         const SizedBox(height: 12),
                         if (controller.isChecking) ...[
-                          const Text('Controllo della sicurezza dell’account…'),
+                          Text(
+                            tr(
+                              'Controllo della sicurezza dell’account…',
+                              'Checking account security…',
+                            ),
+                          ),
                           const SizedBox(height: 20),
                           const Center(child: CircularProgressIndicator()),
                         ] else if (controller.hasError) ...[
-                          const MfaMessage(
-                            'Non riesco a verificare la sicurezza dell’account. Controlla la connessione e riprova.',
+                          MfaMessage(
+                            tr(
+                              'Non riesco a verificare la sicurezza dell’account. Controlla la connessione e riprova.',
+                              'I can’t check the account security. Check the connection and try again.',
+                            ),
                             error: true,
                           ),
                           FilledButton(
                             onPressed: _busy ? null : controller.refresh,
-                            child: const Text('Riprova'),
+                            child: Text(tr('Riprova', 'Try again')),
                           ),
                         ] else if (factors.isEmpty) ...[
-                          const Text(
-                            'Questo account usa un metodo di verifica non supportato da questa app. Usa un Authenticator TOTP o contatta l’amministratore del progetto.',
+                          Text(
+                            tr(
+                              'Questo account usa un metodo di verifica non supportato da questa app. Usa un Authenticator TOTP o contatta l’amministratore del progetto.',
+                              'This account uses a verification method this app doesn’t support. Use a TOTP Authenticator or contact the project admin.',
+                            ),
                           ),
                         ] else ...[
-                          const Text(
-                            'Apri la tua app Authenticator e inserisci il codice temporaneo per accedere.',
+                          Text(
+                            tr(
+                              'Apri la tua app Authenticator e inserisci il codice temporaneo per accedere.',
+                              'Open your Authenticator app and enter the temporary code to sign in.',
+                            ),
                           ),
                           const SizedBox(height: 20),
                           if (factors.length > 1) ...[
@@ -175,19 +193,25 @@ class _MfaChallengePageState extends State<MfaChallengePage> {
                             onPressed: _busy ? null : _verify,
                             child: Text(
                               _busy
-                                  ? 'Verifica in corso…'
-                                  : 'Verifica e accedi',
+                                  ? tr('Verifica in corso…', 'Verifying…')
+                                  : tr(
+                                      'Verifica e accedi',
+                                      'Verify and sign in',
+                                    ),
                             ),
                           ),
                           const SizedBox(height: 16),
-                          const Text(
-                            'Non hai il telefono? Usa un altro Authenticator già collegato. Se li hai persi tutti, serve il recupero da parte dell’amministratore Supabase.',
+                          Text(
+                            tr(
+                              'Non hai il telefono? Usa un altro Authenticator già collegato. Se li hai persi tutti, serve il recupero da parte dell’amministratore Supabase.',
+                              'No phone with you? Use another Authenticator you already linked. If you lost them all, the Supabase admin has to recover the account.',
+                            ),
                           ),
                         ],
                         const SizedBox(height: 12),
                         TextButton(
                           onPressed: _busy ? null : _signOut,
-                          child: const Text('Torna al login'),
+                          child: Text(tr('Torna al login', 'Back to sign in')),
                         ),
                       ],
                     ),

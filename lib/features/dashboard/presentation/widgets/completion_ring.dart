@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
 import '../../../../app/theme.dart';
+import '../../../../core/i18n/i18n.dart';
 
 class CompletionRing extends StatelessWidget {
   const CompletionRing({
@@ -21,7 +22,10 @@ class CompletionRing extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Semantics(
-      label: 'Completamento $percentage per cento, $completed su $total',
+      label: tr(
+        'Completamento $percentage per cento, $completed su $total',
+        'Completion $percentage percent, $completed of $total',
+      ),
       child: TweenAnimationBuilder<double>(
         tween: Tween<double>(begin: 0, end: percentage / 100),
         duration: const Duration(milliseconds: 350),
@@ -43,7 +47,10 @@ class CompletionRing extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    '$completed di $total completate',
+                    tr(
+                      '$completed di $total completate',
+                      '$completed of $total done',
+                    ),
                     style: Theme.of(
                       context,
                     ).textTheme.bodyMedium?.copyWith(fontSize: 13),

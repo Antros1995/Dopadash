@@ -17,6 +17,7 @@ import 'widgets/health_overview.dart';
 import 'widgets/home_components.dart';
 import 'widgets/organizer_summary_card.dart';
 import 'widgets/task_card.dart';
+import '../../../core/i18n/i18n.dart';
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({
@@ -76,10 +77,13 @@ class DashboardPageState extends State<DashboardPage> {
 
   void _openTasks(DashboardTaskGroup group) {
     final title = switch (group) {
-      DashboardTaskGroup.personal => 'Attività personali',
-      DashboardTaskGroup.work => 'Attività lavorative',
-      DashboardTaskGroup.personalWork => 'Attività Lavoro Personale',
-      DashboardTaskGroup.posta => 'Posta',
+      DashboardTaskGroup.personal => tr('Attività personali', 'Personal tasks'),
+      DashboardTaskGroup.work => tr('Attività lavorative', 'Work tasks'),
+      DashboardTaskGroup.personalWork => tr(
+        'Attività Lavoro Personale',
+        'Side-project tasks',
+      ),
+      DashboardTaskGroup.posta => tr('Posta', 'Mail'),
     };
     showDialog<void>(
       context: context,
@@ -93,7 +97,7 @@ class DashboardPageState extends State<DashboardPage> {
                 alignment: Alignment.centerRight,
                 child: IconButton(
                   onPressed: () => Navigator.pop(context),
-                  tooltip: 'Chiudi',
+                  tooltip: tr('Chiudi', 'Close'),
                   icon: const Icon(Icons.close),
                 ),
               ),
@@ -239,7 +243,7 @@ class DashboardPageState extends State<DashboardPage> {
                   'Attività personali',
                   'Attività personali',
                   HomeTaskPreview(
-                    title: 'Attività personali',
+                    title: tr('Attività personali', 'Personal tasks'),
                     group: DashboardTaskGroup.personal,
                     controller: widget.tasks,
                     onOpen: () => _openTasks(DashboardTaskGroup.personal),
@@ -254,7 +258,7 @@ class DashboardPageState extends State<DashboardPage> {
                   'Attività lavorative',
                   'Attività lavorative',
                   HomeTaskPreview(
-                    title: 'Attività lavorative',
+                    title: tr('Attività lavorative', 'Work tasks'),
                     group: DashboardTaskGroup.work,
                     controller: widget.tasks,
                     onOpen: () => _openTasks(DashboardTaskGroup.work),
@@ -269,7 +273,10 @@ class DashboardPageState extends State<DashboardPage> {
                   'Attività lavoro personale',
                   'Attività lavoro personale',
                   HomeTaskPreview(
-                    title: 'Attività lavoro personale',
+                    title: tr(
+                      'Attività lavoro personale',
+                      'Side-project tasks',
+                    ),
                     group: DashboardTaskGroup.personalWork,
                     controller: widget.tasks,
                     onOpen: () => _openTasks(DashboardTaskGroup.personalWork),
@@ -289,19 +296,25 @@ class DashboardPageState extends State<DashboardPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         HomeHeading(
-                          title: 'Investimenti',
+                          title: tr('Investimenti', 'Investments'),
                           icon: Icons.trending_up,
                           action: widget.onMarkets == null
                               ? null
                               : HomeLink(
-                                  label: 'Apri Investimenti',
+                                  label: tr(
+                                    'Apri Investimenti',
+                                    'Open Investments',
+                                  ),
                                   onTap: widget.onMarkets!,
                                 ),
                         ),
                         const SizedBox(height: 12),
                         Text(
                           portfolio == null || portfolio.loading
-                              ? 'Portafoglio non caricato'
+                              ? tr(
+                                  'Portafoglio non caricato',
+                                  'Portfolio not loaded',
+                                )
                               : amount(portfolio.totalValue),
                           style: const TextStyle(
                             fontSize: 24,
@@ -311,7 +324,7 @@ class DashboardPageState extends State<DashboardPage> {
                         ),
                         if (portfolio != null && !portfolio.loading)
                           Text(
-                            '${portfolio.complete ? 'Risultato' : 'Valore parziale EUR'} · ${portfolio.complete ? amount(portfolio.profit) : 'quotazioni mancanti'}',
+                            '${portfolio.complete ? tr('Risultato', 'Result') : tr('Valore parziale EUR', 'Partial value EUR')} · ${portfolio.complete ? amount(portfolio.profit) : tr('quotazioni mancanti', 'missing quotes')}',
                             style: const TextStyle(fontSize: 12),
                           ),
                         if (portfolio != null && !portfolio.loading) ...[
@@ -325,8 +338,11 @@ class DashboardPageState extends State<DashboardPage> {
                                 end,
                               );
                               return history.length < 2
-                                  ? const Text(
-                                      'Andamento non disponibile: mancano le quotazioni storiche.',
+                                  ? Text(
+                                      tr(
+                                        'Andamento non disponibile: mancano le quotazioni storiche.',
+                                        'Trend unavailable: historical quotes are missing.',
+                                      ),
                                       style: TextStyle(fontSize: 11),
                                     )
                                   : FinanceChart(
@@ -338,8 +354,11 @@ class DashboardPageState extends State<DashboardPage> {
                                         for (final p in history)
                                           TimeValue(p.date, p.capital),
                                       ],
-                                      label: 'Portafoglio',
-                                      secondLabel: 'Capitale netto',
+                                      label: tr('Portafoglio', 'Portfolio'),
+                                      secondLabel: tr(
+                                        'Capitale netto',
+                                        'Net capital',
+                                      ),
                                       height: 170,
                                       connectGaps: false,
                                     );
@@ -347,8 +366,11 @@ class DashboardPageState extends State<DashboardPage> {
                           ),
                         ],
                         const SizedBox(height: 8),
-                        const Text(
-                          'Ultimi 6 mesi · prezzi con data e fonte nel portafoglio.',
+                        Text(
+                          tr(
+                            'Ultimi 6 mesi · prezzi con data e fonte nel portafoglio.',
+                            'Last 6 months · prices with date and source in the portfolio.',
+                          ),
                           style: TextStyle(fontSize: 11),
                         ),
                       ],
@@ -361,7 +383,7 @@ class DashboardPageState extends State<DashboardPage> {
                   'Posta',
                   'Posta',
                   HomeTaskPreview(
-                    title: 'Posta',
+                    title: tr('Posta', 'Mail'),
                     group: DashboardTaskGroup.posta,
                     controller: widget.tasks,
                     onOpen: () => _openTasks(DashboardTaskGroup.posta),
@@ -376,7 +398,7 @@ class DashboardPageState extends State<DashboardPage> {
             ),
             const SizedBox(height: 12),
             Text(
-              '${capitalize(formatItalianDate(date))} · Dati delle integrazioni collegate',
+              '${capitalize(formatLongDate(date))} · ${tr('Dati delle integrazioni collegate', 'Data from connected services')}',
               style: const TextStyle(fontSize: 11, color: AppColors.textFaint),
             ),
           ],

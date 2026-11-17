@@ -5,6 +5,8 @@ import '../../../core/presentation/app_card.dart';
 import '../../../core/presentation/mac_widgets.dart';
 import '../../../core/presentation/responsive_layout.dart';
 import '../../routines/domain/routine.dart' show shiftDays;
+import '../../../core/i18n/i18n.dart';
+import '../../../core/utils/date_formatters.dart';
 
 /// Elementi condivisi dalle schede Quotidianità e Sport.
 
@@ -19,32 +21,9 @@ const dailyPageTitle = TextStyle(
 const dailyPurple = Color(0xFF7A5AF8);
 const dailyBlue = Color(0xFF2F7BF6);
 
-String weekdayDate(DateTime d) {
-  const days = [
-    'lunedì',
-    'martedì',
-    'mercoledì',
-    'giovedì',
-    'venerdì',
-    'sabato',
-    'domenica',
-  ];
-  const months = [
-    'gennaio',
-    'febbraio',
-    'marzo',
-    'aprile',
-    'maggio',
-    'giugno',
-    'luglio',
-    'agosto',
-    'settembre',
-    'ottobre',
-    'novembre',
-    'dicembre',
-  ];
-  return '${days[d.weekday - 1]} ${d.day} ${months[d.month - 1]}';
-}
+/// "lunedì 16 novembre" / "Monday 16 November".
+String weekdayDate(DateTime d) =>
+    '${weekdayName(d)} ${d.day} ${monthName(d.month)}';
 
 String clock(DateTime t) =>
     '${t.hour.toString().padLeft(2, '0')}:${t.minute.toString().padLeft(2, '0')}';
@@ -67,9 +46,9 @@ class DailyHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final isToday = DateUtils.isSameDay(date, today);
     final label = isToday
-        ? 'Oggi'
+        ? tr('Oggi', 'Today')
         : DateUtils.isSameDay(date, shiftDays(today, -1))
-        ? 'Ieri'
+        ? tr('Ieri', 'Yesterday')
         : '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}';
     Widget arrow(IconData icon, String tip, VoidCallback? onTap) => IconButton(
       onPressed: onTap,
@@ -87,7 +66,7 @@ class DailyHeader extends StatelessWidget {
         children: [
           arrow(
             Icons.chevron_left,
-            'Giorno precedente',
+            tr('Giorno precedente', 'Previous day'),
             () => onSelectDate(shiftDays(date, -1)),
           ),
           InkWell(
@@ -115,10 +94,8 @@ class DailyHeader extends StatelessWidget {
           ),
           arrow(
             Icons.chevron_right,
-            'Giorno successivo',
-            isToday
-                ? null
-                : () => onSelectDate(shiftDays(date, 1)),
+            tr('Giorno successivo', 'Next day'),
+            isToday ? null : () => onSelectDate(shiftDays(date, 1)),
           ),
         ],
       ),
@@ -146,7 +123,7 @@ class DailyHeader extends StatelessWidget {
             padding: const EdgeInsets.only(top: 4),
             child: TextButton(
               onPressed: () => onSelectDate(today),
-              child: const Text('Torna a oggi'),
+              child: Text(tr('Torna a oggi', 'Back to today')),
             ),
           ),
         ],
@@ -219,10 +196,8 @@ class StatusChip extends StatelessWidget {
   final bool done;
   final String label;
   @override
-  Widget build(BuildContext context) => MacChip(
-    done ? '✓ $label' : label,
-    tone: done ? AppColors.green : null,
-  );
+  Widget build(BuildContext context) =>
+      MacChip(done ? '✓ $label' : label, tone: done ? AppColors.green : null);
 }
 
 /// Scala da 1 a 5: cinque cerchi grandi, quello scelto si riempie.
@@ -253,7 +228,10 @@ class LevelScale extends StatelessWidget {
               Semantics(
                 button: true,
                 selected: value == i,
-                label: '$i su 5${labels[i] == null ? '' : ', ${labels[i]}'}',
+                label: tr(
+                  '$i su 5${labels[i] == null ? '' : ', ${labels[i]}'}',
+                  '$i of 5${labels[i] == null ? '' : ', ${labels[i]}'}',
+                ),
                 child: InkWell(
                   onTap: () => onSelected(i),
                   customBorder: const CircleBorder(),
@@ -374,13 +352,16 @@ class DailyErrorBanner extends StatelessWidget {
       children: [
         const Icon(Icons.cloud_off_outlined, size: 17, color: AppColors.danger),
         const SizedBox(width: 8),
-        const Expanded(
+        Expanded(
           child: Text(
-            'Non riesco a leggere o salvare i dati. Controlla la connessione.',
+            tr(
+              'Non riesco a leggere o salvare i dati. Controlla la connessione.',
+              'I can’t read or save the data. Check the connection.',
+            ),
             style: TextStyle(fontSize: 12.5, color: AppColors.danger),
           ),
         ),
-        TextButton(onPressed: onRetry, child: const Text('Riprova')),
+        TextButton(onPressed: onRetry, child: Text(tr('Riprova', 'Try again'))),
       ],
     ),
   );

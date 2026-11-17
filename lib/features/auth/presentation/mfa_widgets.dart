@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../../../app/theme.dart';
+import '../../../core/i18n/i18n.dart';
 
 class MfaCodeField extends StatelessWidget {
   const MfaCodeField({required this.controller, this.onSubmitted, super.key});
@@ -18,15 +19,18 @@ class MfaCodeField extends StatelessWidget {
     maxLength: 6,
     autocorrect: false,
     enableSuggestions: false,
-    decoration: const InputDecoration(
-      labelText: 'Codice a 6 cifre',
+    decoration: InputDecoration(
+      labelText: tr('Codice a 6 cifre', '6-digit code'),
       hintText: '000000',
       counterText: '',
       prefixIcon: Icon(Icons.password_rounded),
     ),
     validator: (value) => RegExp(r'^\d{6}$').hasMatch(value ?? '')
         ? null
-        : 'Inserisci le 6 cifre dell’app Authenticator.',
+        : tr(
+            'Inserisci le 6 cifre dell’app Authenticator.',
+            'Enter the 6 digits from your Authenticator app.',
+          ),
     onFieldSubmitted: onSubmitted,
   );
 }

@@ -483,7 +483,7 @@ class _DateControl extends StatelessWidget {
         const SizedBox(width: 10),
         Expanded(
           child: Text(
-            '$label ${capitalize(formatItalianDate(date))}',
+            '$label ${capitalize(formatLongDate(date))}',
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),

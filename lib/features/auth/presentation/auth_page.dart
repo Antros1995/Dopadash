@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import '../../../app/theme.dart';
 import '../application/auth_controller.dart';
 import 'auth_error_message.dart';
+import '../../../core/i18n/i18n.dart';
+import '../../../core/i18n/language_switch.dart';
 
 enum _AuthMode { signIn, signUp, recover, updatePassword }
 
@@ -52,17 +54,32 @@ class _AuthPageState extends State<AuthPage> {
   }
 
   String get _title => switch (_mode) {
-    _AuthMode.signIn => 'Bentornato',
-    _AuthMode.signUp => 'Crea il tuo spazio',
-    _AuthMode.recover => 'Recupera l\'accesso',
-    _AuthMode.updatePassword => 'Scegli una nuova password',
+    _AuthMode.signIn => tr('Bentornato', 'Welcome back'),
+    _AuthMode.signUp => tr('Crea il tuo spazio', 'Create your space'),
+    _AuthMode.recover => tr('Recupera l\'accesso', 'Get back in'),
+    _AuthMode.updatePassword => tr(
+      'Scegli una nuova password',
+      'Choose a new password',
+    ),
   };
 
   String get _subtitle => switch (_mode) {
-    _AuthMode.signIn => 'Accedi alla tua dashboard personale.',
-    _AuthMode.signUp => 'Un unico posto per le tue giornate.',
-    _AuthMode.recover => 'Riceverai un link sicuro via email.',
-    _AuthMode.updatePassword => 'Usa almeno 8 caratteri.',
+    _AuthMode.signIn => tr(
+      'Accedi alla tua dashboard personale.',
+      'Sign in to your personal dashboard.',
+    ),
+    _AuthMode.signUp => tr(
+      'Un unico posto per le tue giornate.',
+      'One place for your days.',
+    ),
+    _AuthMode.recover => tr(
+      'Riceverai un link sicuro via email.',
+      'You’ll get a secure link by email.',
+    ),
+    _AuthMode.updatePassword => tr(
+      'Usa almeno 8 caratteri.',
+      'Use at least 8 characters.',
+    ),
   };
 
   Future<void> _submit() async {
@@ -82,17 +99,22 @@ class _AuthPageState extends State<AuthPage> {
             password: _password.text,
           );
           if (result.session == null) {
-            _showMessage('Controlla la posta per confermare l\'account.');
+            _showMessage(
+              tr(
+                'Controlla la posta per confermare l\'account.',
+                'Check your inbox to confirm the account.',
+              ),
+            );
           }
           break;
         case _AuthMode.recover:
           await widget.controller.sendPasswordReset(_email.text);
-          _showMessage('Link di recupero inviato.');
+          _showMessage(tr('Link di recupero inviato.', 'Recovery link sent.'));
           setState(() => _mode = _AuthMode.signIn);
           break;
         case _AuthMode.updatePassword:
           await widget.controller.updatePassword(_password.text);
-          _showMessage('Password aggiornata.');
+          _showMessage(tr('Password aggiornata.', 'Password updated.'));
           break;
       }
     } on Object catch (error) {
@@ -175,7 +197,10 @@ class _AuthPageState extends State<AuthPage> {
               ),
               validator: (value) => value != null && value.contains('@')
                   ? null
-                  : 'Inserisci un indirizzo email valido.',
+                  : tr(
+                      'Inserisci un indirizzo email valido.',
+                      'Enter a valid email address.',
+                    ),
             ),
             const SizedBox(height: AppSpacing.md),
           ],
@@ -187,12 +212,14 @@ class _AuthPageState extends State<AuthPage> {
               onFieldSubmitted: (_) => _busy ? null : _submit(),
               decoration: InputDecoration(
                 labelText: _mode == _AuthMode.updatePassword
-                    ? 'Nuova password'
+                    ? tr('Nuova password', 'New password')
                     : 'Password',
                 prefixIcon: const Icon(Icons.lock_outline_rounded),
                 suffixIcon: IconButton(
                   onPressed: () => setState(() => _obscure = !_obscure),
-                  tooltip: _obscure ? 'Mostra password' : 'Nascondi password',
+                  tooltip: _obscure
+                      ? tr('Mostra password', 'Show password')
+                      : tr('Nascondi password', 'Hide password'),
                   icon: Icon(
                     _obscure
                         ? Icons.visibility_outlined
@@ -202,7 +229,10 @@ class _AuthPageState extends State<AuthPage> {
               ),
               validator: (value) => (value?.length ?? 0) >= 8
                   ? null
-                  : 'La password deve avere almeno 8 caratteri.',
+                  : tr(
+                      'La password deve avere almeno 8 caratteri.',
+                      'The password needs at least 8 characters.',
+                    ),
             ),
             const SizedBox(height: AppSpacing.lg),
           ],
@@ -214,27 +244,34 @@ class _AuthPageState extends State<AuthPage> {
                     child: CircularProgressIndicator(strokeWidth: 2),
                   )
                 : Text(switch (_mode) {
-                    _AuthMode.signIn => 'Accedi',
-                    _AuthMode.signUp => 'Crea account',
-                    _AuthMode.recover => 'Invia link',
-                    _AuthMode.updatePassword => 'Aggiorna password',
+                    _AuthMode.signIn => tr('Accedi', 'Sign in'),
+                    _AuthMode.signUp => tr('Crea account', 'Create account'),
+                    _AuthMode.recover => tr('Invia link', 'Send link'),
+                    _AuthMode.updatePassword => tr(
+                      'Aggiorna password',
+                      'Update password',
+                    ),
                   }),
           ),
           const SizedBox(height: AppSpacing.md),
           if (_mode == _AuthMode.signIn) ...[
             TextButton(
               onPressed: () => _changeMode(_AuthMode.recover),
-              child: const Text('Password dimenticata?'),
+              child: Text(tr('Password dimenticata?', 'Forgot your password?')),
             ),
             TextButton(
               onPressed: () => _changeMode(_AuthMode.signUp),
-              child: const Text('Non hai un account? Registrati'),
+              child: Text(
+                tr('Non hai un account? Registrati', 'No account? Sign up'),
+              ),
             ),
           ] else if (_mode != _AuthMode.updatePassword)
             TextButton(
               onPressed: () => _changeMode(_AuthMode.signIn),
-              child: const Text('Torna all\'accesso'),
+              child: Text(tr('Torna all\'accesso', 'Back to sign in')),
             ),
+          const SizedBox(height: AppSpacing.md),
+          const Center(child: LanguageSwitch()),
         ],
       ),
     );
@@ -259,7 +296,7 @@ class _AuthIntro extends StatelessWidget {
           const _BrandMark(light: true),
           const Spacer(),
           Text(
-            'Le tue giornate,\nmesse a fuoco.',
+            tr('Le tue giornate,\nmesse a fuoco.', 'Your days,\nin focus.'),
             style: Theme.of(context).textTheme.displayLarge?.copyWith(
               color: Colors.white,
               fontSize: 52,
@@ -267,7 +304,10 @@ class _AuthIntro extends StatelessWidget {
           ),
           const SizedBox(height: AppSpacing.lg),
           Text(
-            'Routine, progressi e strumenti personali in una dashboard calma e leggibile.',
+            tr(
+              'Routine, progressi e strumenti personali in una dashboard calma e leggibile.',
+              'Routines, progress and personal tools in a calm, readable dashboard.',
+            ),
             style: Theme.of(context).textTheme.bodyLarge?.copyWith(
               color: Colors.white.withValues(alpha: .78),
             ),

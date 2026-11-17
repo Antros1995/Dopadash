@@ -3,13 +3,16 @@ import 'package:flutter/material.dart';
 import '../../../app/theme.dart';
 import '../../../core/presentation/mac_widgets.dart';
 import '../../../core/presentation/responsive_layout.dart';
-import '../../dashboard/presentation/widgets/routine_tile.dart' show routineIcon;
+import '../../dashboard/presentation/widgets/routine_tile.dart'
+    show routineIcon;
 import '../../routines/application/routine_controller.dart';
 import '../../routines/domain/routine.dart';
 import '../application/daily_controller.dart';
 import '../domain/daily_models.dart';
 import 'daily_widgets.dart';
 import 'screen_time_dialog.dart';
+import '../../../core/i18n/i18n.dart';
+import '../../../core/i18n/names.dart';
 
 /// Quotidianità: il cellulare di ieri, la coppa, le abitudini da spuntare e i
 /// check-in di emozioni, concentrazione e movimento. Una cosa alla volta, con
@@ -91,20 +94,20 @@ class DailyPageState extends State<DailyPage> {
       final routines = widget.routines, daily = widget.daily, day = daily.day;
       final progress = routines.progress;
       final steps = <(String, bool, String)>[
-        ('Cellulare', day.screenTime != null, 'Cellulare'),
+        ('Cellulare', day.screenTime != null, sectionLabel('Cellulare')),
         (
           'Abitudini',
           progress.totalCount > 0 &&
               routines.routines.every((r) => routines.entryFor(r.id).isMarked),
-          'Abitudini ${progress.completedCount}/${progress.totalCount}',
+          '${sectionLabel('Abitudini')} ${progress.completedCount}/${progress.totalCount}',
         ),
-        ('Emozioni', day.emotions.isNotEmpty, 'Emozioni'),
+        ('Emozioni', day.emotions.isNotEmpty, sectionLabel('Emozioni')),
         (
           'Concentrazione',
           day.dayConcentration.isNotEmpty,
-          'Concentrazione',
+          sectionLabel('Concentrazione'),
         ),
-        ('Movimento', day.movement != null, 'Movimento'),
+        ('Movimento', day.movement != null, sectionLabel('Movimento')),
       ];
       final done = steps.where((s) => s.$2).length;
       final switcher = widget.nutrition == null
@@ -114,7 +117,9 @@ class DailyPageState extends State<DailyPage> {
               child: MacSegmented<bool>(
                 values: const [false, true],
                 selected: _food,
-                labelFor: (food) => food ? '🍽 Alimentazione' : '☀️ Giornata',
+                labelFor: (food) => food
+                    ? tr('🍽 Alimentazione', '🍽 Nutrition')
+                    : tr('☀️ Giornata', '☀️ Day'),
                 onSelected: (food) => setState(() => _food = food),
               ),
             );
@@ -134,7 +139,7 @@ class DailyPageState extends State<DailyPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      const Text('Quotidianità', style: dailyPageTitle),
+                      Text(pageName(8), style: dailyPageTitle),
                       const SizedBox(height: 10),
                       switcher!,
                     ],
@@ -156,18 +161,21 @@ class DailyPageState extends State<DailyPage> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 DailyHeader(
-                  title: 'Quotidianità',
+                  title: pageName(8),
                   subtitle: done == steps.length
-                      ? 'Giornata completa: hai registrato tutto. ✨'
-                      : '${weekdayDate(daily.date)} · $done di ${steps.length} cose registrate',
+                      ? tr(
+                          'Giornata completa: hai registrato tutto. ✨',
+                          'Day complete: you logged everything. ✨',
+                        )
+                      : tr(
+                          '${weekdayDate(daily.date)} · $done di ${steps.length} cose registrate',
+                          '${weekdayDate(daily.date)} · $done of ${steps.length} things logged',
+                        ),
                   date: daily.date,
                   today: daily.today,
                   onSelectDate: widget.onSelectDate,
                 ),
-                if (switcher != null) ...[
-                  const SizedBox(height: 10),
-                  switcher,
-                ],
+                if (switcher != null) ...[const SizedBox(height: 10), switcher],
                 const SizedBox(height: 12),
                 Wrap(
                   spacing: 6,
@@ -252,7 +260,12 @@ class _ScreenTimeCardState extends State<_ScreenTimeCard> {
   Future<void> _quickSave() async {
     final minutes = parseMinutes(_field.text);
     if (minutes == null) {
-      setState(() => _invalid = 'Scrivi ore e minuti, per esempio 2:15');
+      setState(
+        () => _invalid = tr(
+          'Scrivi ore e minuti, per esempio 2:15',
+          'Write hours and minutes, for example 2:15',
+        ),
+      );
       return;
     }
     setState(() => _invalid = null);
@@ -274,22 +287,32 @@ class _ScreenTimeCardState extends State<_ScreenTimeCard> {
     final time = widget.daily.day.screenTime;
     final usage = shiftDays(widget.daily.date, -1);
     final when = widget.daily.isToday
-        ? 'ieri'
-        : 'il ${usage.day.toString().padLeft(2, '0')}/${usage.month.toString().padLeft(2, '0')}';
+        ? tr('ieri', 'yesterday')
+        : tr(
+            'il ${usage.day.toString().padLeft(2, '0')}/${usage.month.toString().padLeft(2, '0')}',
+            'on ${usage.day.toString().padLeft(2, '0')}/${usage.month.toString().padLeft(2, '0')}',
+          );
     return DailySection(
       icon: Icons.smartphone,
       color: dailyBlue,
-      title: 'Cellulare di ${widget.daily.isToday ? 'ieri' : 'quel giorno prima'}',
+      title: widget.daily.isToday
+          ? tr('Cellulare di ieri', 'Yesterday’s phone use')
+          : tr('Cellulare di quel giorno prima', 'Phone use the day before'),
       status: StatusChip(
         done: time != null,
-        label: time != null ? 'Registrato' : 'Da inserire',
+        label: time != null
+            ? tr('Registrato', 'Logged')
+            : tr('Da inserire', 'To add'),
       ),
       child: time == null
           ? Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Quanto hai usato il telefono $when?',
+                  tr(
+                    'Quanto hai usato il telefono $when?',
+                    'How much did you use your phone $when?',
+                  ),
                   style: const TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
@@ -333,14 +356,17 @@ class _ScreenTimeCardState extends State<_ScreenTimeCard> {
                     const SizedBox(width: 10),
                     FilledButton(
                       onPressed: _quickSave,
-                      child: const Text('Salva'),
+                      child: Text(tr('Salva', 'Save')),
                     ),
                   ],
                 ),
                 const SizedBox(height: 8),
                 Text(
                   _invalid ??
-                      'Ore:minuti dalle impostazioni del telefono. Dopo puoi togliere le app che non contano.',
+                      tr(
+                        'Ore:minuti dalle impostazioni del telefono. Dopo puoi togliere le app che non contano.',
+                        'Hours:minutes from your phone’s settings. Then you can remove the apps that don’t count.',
+                      ),
                   style: TextStyle(
                     fontSize: 12,
                     color: _invalid == null
@@ -367,10 +393,10 @@ class _ScreenTimeCardState extends State<_ScreenTimeCard> {
                       ),
                     ),
                     const SizedBox(width: 10),
-                    const Padding(
+                    Padding(
                       padding: EdgeInsets.only(bottom: 5),
                       child: Text(
-                        'conteggiate',
+                        tr('conteggiate', 'counted'),
                         style: TextStyle(
                           fontSize: 13,
                           color: AppColors.textMuted,
@@ -378,7 +404,10 @@ class _ScreenTimeCardState extends State<_ScreenTimeCard> {
                       ),
                     ),
                     const Spacer(),
-                    TextButton(onPressed: _edit, child: const Text('Modifica')),
+                    TextButton(
+                      onPressed: _edit,
+                      child: Text(tr('Modifica', 'Edit')),
+                    ),
                   ],
                 ),
                 const SizedBox(height: 10),
@@ -393,13 +422,21 @@ class _ScreenTimeCardState extends State<_ScreenTimeCard> {
                           : dailyBlue,
                     ),
                     MacChip(
-                      '+${time.medal.bonus.toStringAsFixed(1).replaceAll('.0', '')} punti',
+                      tr(
+                        '+${time.medal.bonus.toStringAsFixed(1).replaceAll('.0', '')} punti',
+                        '+${time.medal.bonus.toStringAsFixed(1).replaceAll('.0', '')} points',
+                      ),
                       tone: time.medal.bonus > 0 ? AppColors.green : null,
                     ),
-                    MacChip('totale ${formatMinutes(time.totalMinutes)}'),
+                    MacChip(
+                      tr(
+                        'totale ${formatMinutes(time.totalMinutes)}',
+                        'total ${formatMinutes(time.totalMinutes)}',
+                      ),
+                    ),
                     if (time.exclusions.isNotEmpty)
                       MacChip(
-                        '${time.exclusions.length} ${time.exclusions.length == 1 ? 'esclusa' : 'escluse'} · ${formatMinutes(time.excludedMinutes)}',
+                        '${time.exclusions.length} ${time.exclusions.length == 1 ? tr('esclusa', 'excluded') : tr('escluse', 'excluded')} · ${formatMinutes(time.excludedMinutes)}',
                       ),
                   ],
                 ),
@@ -434,7 +471,7 @@ class _MedalCard extends StatelessWidget {
     return DailySection(
       icon: Icons.emoji_events_outlined,
       color: const Color(0xFFD99A00),
-      title: 'Coppa di oggi',
+      title: tr('Coppa di oggi', 'Today’s cup'),
       status: MacChip('${p.percentage}%', tone: p.isTracked ? tone : null),
       child: Row(
         children: [
@@ -475,7 +512,10 @@ class _MedalCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  '${p.completedCount} di ${p.totalCount} abitudini fatte',
+                  tr(
+                    '${p.completedCount} di ${p.totalCount} abitudini fatte',
+                    '${p.completedCount} of ${p.totalCount} habits done',
+                  ),
                   style: const TextStyle(
                     fontSize: 13,
                     color: AppColors.textMuted,
@@ -494,8 +534,14 @@ class _MedalCard extends StatelessWidget {
                 const SizedBox(height: 6),
                 Text(
                   next == null
-                      ? 'Massimo raggiunto. Grande giornata!'
-                      : 'Ancora ${missing <= 1 ? 'pochissimo' : '${missing.ceil()} punti'} per ${next.emoji} ${next.label}',
+                      ? tr(
+                          'Massimo raggiunto. Grande giornata!',
+                          'Top level reached. Great day!',
+                        )
+                      : tr(
+                          'Ancora ${missing <= 1 ? 'pochissimo' : '${missing.ceil()} punti'} per ${next.emoji} ${next.label}',
+                          '${missing <= 1 ? 'Almost there' : '${missing.ceil()} more points'} for ${next.emoji} ${next.label}',
+                        ),
                   style: const TextStyle(
                     fontSize: 12,
                     color: AppColors.textMuted,
@@ -540,19 +586,24 @@ class _HabitsCardState extends State<_HabitsCard> {
     final ok = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Togliere “${routine.name}”?'),
-        content: const Text(
-          'Non comparirà più da questo giorno in poi. Lo storico dei giorni passati resta.',
+        title: Text(
+          tr('Togliere “${routine.name}”?', 'Remove “${routine.name}”?'),
+        ),
+        content: Text(
+          tr(
+            'Non comparirà più da questo giorno in poi. Lo storico dei giorni passati resta.',
+            'It won’t show up from this day on. The history of past days stays.',
+          ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Annulla'),
+            child: Text(tr('Annulla', 'Cancel')),
           ),
           FilledButton(
             onPressed: () => Navigator.pop(context, true),
             style: FilledButton.styleFrom(backgroundColor: AppColors.danger),
-            child: const Text('Togli'),
+            child: Text(tr('Togli', 'Remove')),
           ),
         ],
       ),
@@ -590,42 +641,46 @@ class _HabitsCardState extends State<_HabitsCard> {
         ],
       ],
     );
-    Widget area(String title, Color tone, Color background, List<RoutineDefinition> list) =>
-        Container(
-          margin: const EdgeInsets.only(top: 12),
-          padding: const EdgeInsets.fromLTRB(12, 8, 8, 6),
-          decoration: BoxDecoration(
-            color: background,
-            borderRadius: BorderRadius.circular(10),
+    Widget area(
+      String title,
+      Color tone,
+      Color background,
+      List<RoutineDefinition> list,
+    ) => Container(
+      margin: const EdgeInsets.only(top: 12),
+      padding: const EdgeInsets.fromLTRB(12, 8, 8, 6),
+      decoration: BoxDecoration(
+        color: background,
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(
+            '$title · ${list.length}',
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w700,
+              color: tone,
+            ),
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Text(
-                '$title · ${list.length}',
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
-                  color: tone,
-                ),
-              ),
-              const SizedBox(height: 2),
-              rows(list),
-            ],
-          ),
-        );
+          const SizedBox(height: 2),
+          rows(list),
+        ],
+      ),
+    );
     return DailySection(
       icon: Icons.checklist_rounded,
-      title: 'Abitudini',
+      title: sectionLabel('Abitudini'),
       status: StatusChip(
         done: todo.isEmpty && all.isNotEmpty,
         label: todo.isEmpty && all.isNotEmpty
-            ? 'Tutte segnate'
-            : '${todo.length} da fare',
+            ? tr('Tutte segnate', 'All marked')
+            : tr('${todo.length} da fare', '${todo.length} to do'),
       ),
       action: TextButton(
         onPressed: () => setState(() => _editing = !_editing),
-        child: Text(_editing ? 'Fine' : 'Modifica'),
+        child: Text(_editing ? tr('Fine', 'Done') : tr('Modifica', 'Edit')),
       ),
       child: AnimatedSize(
         duration: const Duration(milliseconds: 200),
@@ -636,15 +691,20 @@ class _HabitsCardState extends State<_HabitsCard> {
             if (c.isLoading && all.isEmpty)
               const Padding(
                 padding: EdgeInsets.all(16),
-                child: Center(child: CircularProgressIndicator(strokeWidth: 2.5)),
+                child: Center(
+                  child: CircularProgressIndicator(strokeWidth: 2.5),
+                ),
               ),
             if (todo.isNotEmpty)
               rows(todo)
             else if (all.isNotEmpty)
-              const Padding(
+              Padding(
                 padding: EdgeInsets.symmetric(vertical: 6),
                 child: Text(
-                  'Niente più da fare per oggi. 🎉',
+                  tr(
+                    'Niente più da fare per oggi. 🎉',
+                    'Nothing left for today. 🎉',
+                  ),
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
@@ -663,7 +723,10 @@ class _HabitsCardState extends State<_HabitsCard> {
                       textInputAction: TextInputAction.done,
                       onSubmitted: (_) => _add(),
                       decoration: InputDecoration(
-                        hintText: 'Nuova abitudine… scrivi e premi Invio',
+                        hintText: tr(
+                          'Nuova abitudine… scrivi e premi Invio',
+                          'New habit… type and press Enter',
+                        ),
                         counterText: '',
                         isDense: true,
                         filled: true,
@@ -676,27 +739,46 @@ class _HabitsCardState extends State<_HabitsCard> {
                         prefixIconConstraints: const BoxConstraints(
                           minWidth: 38,
                         ),
-                        contentPadding: const EdgeInsets.symmetric(vertical: 10),
+                        contentPadding: const EdgeInsets.symmetric(
+                          vertical: 10,
+                        ),
                         border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(AppRadius.control),
+                          borderRadius: BorderRadius.circular(
+                            AppRadius.control,
+                          ),
                           borderSide: BorderSide.none,
                         ),
                         enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(AppRadius.control),
+                          borderRadius: BorderRadius.circular(
+                            AppRadius.control,
+                          ),
                           borderSide: BorderSide.none,
                         ),
                       ),
                     ),
                   ),
                   const SizedBox(width: 8),
-                  FilledButton(onPressed: _add, child: const Text('Aggiungi')),
+                  FilledButton(
+                    onPressed: _add,
+                    child: Text(tr('Aggiungi', 'Add')),
+                  ),
                 ],
               ),
             ],
             if (done.isNotEmpty)
-              area('Fatte', AppColors.green, AppColors.greenSoft, done),
+              area(
+                tr('Fatte', 'Done'),
+                AppColors.green,
+                AppColors.greenSoft,
+                done,
+              ),
             if (skipped.isNotEmpty)
-              area('Non fatte', AppColors.danger, AppColors.dangerSoft, skipped),
+              area(
+                tr('Non fatte', 'Not done'),
+                AppColors.danger,
+                AppColors.dangerSoft,
+                skipped,
+              ),
           ],
         ),
       ),
@@ -791,7 +873,10 @@ class _HabitRow extends StatelessWidget {
               if (editing)
                 IconButton(
                   onPressed: onRemove,
-                  tooltip: 'Togli ${routine.name}',
+                  tooltip: tr(
+                    'Togli ${routine.name}',
+                    'Remove ${routine.name}',
+                  ),
                   visualDensity: VisualDensity.compact,
                   icon: const Icon(
                     Icons.remove_circle_outline,
@@ -807,8 +892,8 @@ class _HabitRow extends StatelessWidget {
                     minimumSize: const Size(0, 30),
                     padding: const EdgeInsets.symmetric(horizontal: 8),
                   ),
-                  child: const Text(
-                    'Non fatta',
+                  child: Text(
+                    tr('Non fatta', 'Not done'),
                     style: TextStyle(fontSize: 12),
                   ),
                 ),
@@ -865,7 +950,12 @@ class _EmotionsCardState extends State<_EmotionsCard> {
     if (ok) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('${emotion.emoji} Check-in salvato alle ${clock(DateTime.now())}'),
+          content: Text(
+            tr(
+              '${emotion.emoji} Check-in salvato alle ${clock(DateTime.now())}',
+              '${emotion.emoji} Check-in saved at ${clock(DateTime.now())}',
+            ),
+          ),
           duration: const Duration(seconds: 2),
         ),
       );
@@ -890,20 +980,29 @@ class _EmotionsCardState extends State<_EmotionsCard> {
     return DailySection(
       icon: Icons.favorite_border,
       color: const Color(0xFFE5484D),
-      title: 'Come stai adesso?',
+      title: tr('Come stai adesso?', 'How do you feel right now?'),
       status: StatusChip(
         done: last != null,
         label: last == null
-            ? 'Nessun check-in'
-            : '${entries.length} check-in · ultimo ${clock(last.recordedAt)}',
+            ? tr('Nessun check-in', 'No check-ins')
+            : tr(
+                '${entries.length} check-in · ultimo ${clock(last.recordedAt)}',
+                '${entries.length} ${entries.length == 1 ? 'check-in' : 'check-ins'} · latest ${clock(last.recordedAt)}',
+              ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(
             _emotion == null
-                ? 'Tocca l’emozione che senti di più in questo momento.'
-                : 'Hai scelto ${_emotion!.emoji} ${_emotion!.label}: completa qui sotto e salva.',
+                ? tr(
+                    'Tocca l’emozione che senti di più in questo momento.',
+                    'Tap the emotion you feel most right now.',
+                  )
+                : tr(
+                    'Hai scelto ${_emotion!.emoji} ${_emotion!.label}: completa qui sotto e salva.',
+                    'You picked ${_emotion!.emoji} ${_emotion!.label}: finish below and save.',
+                  ),
             style: const TextStyle(fontSize: 13.5, color: AppColors.text),
           ),
           const SizedBox(height: 10),
@@ -932,20 +1031,20 @@ class _EmotionsCardState extends State<_EmotionsCard> {
                 : Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      label('Quanto è intensa?'),
+                      label(tr('Quanto è intensa?', 'How intense is it?')),
                       LevelScale(
                         value: _intensity,
                         color: toneColor(_emotion!.tone),
-                        labels: const {
-                          1: 'Appena accennata',
-                          2: 'Leggera',
-                          3: 'Media',
-                          4: 'Forte',
-                          5: 'Fortissima',
+                        labels: {
+                          1: tr('Appena accennata', 'Barely there'),
+                          2: tr('Leggera', 'Mild'),
+                          3: tr('Media', 'Medium'),
+                          4: tr('Forte', 'Strong'),
+                          5: tr('Fortissima', 'Very strong'),
                         },
                         onSelected: (v) => setState(() => _intensity = v),
                       ),
-                      label('Energia'),
+                      label(tr('Energia', 'Energy')),
                       Wrap(
                         spacing: 6,
                         runSpacing: 6,
@@ -961,7 +1060,12 @@ class _EmotionsCardState extends State<_EmotionsCard> {
                               ),
                         ],
                       ),
-                      label('Concentrazione in questo momento (facoltativa)'),
+                      label(
+                        tr(
+                          'Concentrazione in questo momento (facoltativa)',
+                          'Focus right now (optional)',
+                        ),
+                      ),
                       LevelScale(
                         value: _concentration,
                         color: dailyPurple,
@@ -974,7 +1078,11 @@ class _EmotionsCardState extends State<_EmotionsCard> {
                       FilledButton.icon(
                         onPressed: _saving ? null : _save,
                         icon: const Icon(Icons.check, size: 18),
-                        label: Text(_saving ? 'Salvataggio…' : 'Salva check-in'),
+                        label: Text(
+                          _saving
+                              ? tr('Salvataggio…', 'Saving…')
+                              : tr('Salva check-in', 'Save check-in'),
+                        ),
                       ),
                     ],
                   ),
@@ -991,7 +1099,10 @@ class _EmotionsCardState extends State<_EmotionsCard> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   Text(
-                    'Registrati oggi · ${entries.length}',
+                    tr(
+                      'Registrati oggi · ${entries.length}',
+                      'Logged today · ${entries.length}',
+                    ),
                     style: const TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w700,
@@ -1031,12 +1142,25 @@ class _EmotionsCardState extends State<_EmotionsCard> {
                                   color: AppColors.text,
                                 ),
                               ),
-                              MacChip('intensità ${entry.intensity}/5'),
+                              MacChip(
+                                tr(
+                                  'intensità ${entry.intensity}/5',
+                                  'intensity ${entry.intensity}/5',
+                                ),
+                              ),
                               if (entry.energy != DailyEnergy.noData)
-                                MacChip('energia ${entry.energy.label.toLowerCase()}'),
+                                MacChip(
+                                  tr(
+                                    'energia ${entry.energy.label.toLowerCase()}',
+                                    'energy ${entry.energy.label.toLowerCase()}',
+                                  ),
+                                ),
                               if (entry.concentration != null)
                                 MacChip(
-                                  'concentrazione ${entry.concentration}/5',
+                                  tr(
+                                    'concentrazione ${entry.concentration}/5',
+                                    'focus ${entry.concentration}/5',
+                                  ),
                                   tone: dailyPurple,
                                 ),
                             ],
@@ -1044,7 +1168,10 @@ class _EmotionsCardState extends State<_EmotionsCard> {
                         ),
                         IconButton(
                           onPressed: () => widget.daily.deleteEmotion(entry.id),
-                          tooltip: 'Elimina questo check-in',
+                          tooltip: tr(
+                            'Elimina questo check-in',
+                            'Delete this check-in',
+                          ),
                           visualDensity: VisualDensity.compact,
                           icon: const Icon(
                             Icons.close,
@@ -1093,10 +1220,10 @@ class _ConcentrationCard extends StatelessWidget {
               StatusChip(
                 done: entries.isNotEmpty,
                 label: entries.isEmpty
-                    ? 'Da segnare'
+                    ? tr('Da segnare', 'To mark')
                     : entries.length == 1
-                    ? 'Segnata'
-                    : '${entries.length} volte',
+                    ? tr('Segnata', 'Marked')
+                    : tr('${entries.length} volte', '${entries.length} times'),
               ),
             ],
           ),
@@ -1123,7 +1250,7 @@ class _ConcentrationCard extends StatelessWidget {
                     backgroundColor: dailyPurple.withValues(alpha: .1),
                     side: BorderSide.none,
                     deleteIcon: const Icon(Icons.close, size: 14),
-                    deleteButtonTooltipMessage: 'Elimina',
+                    deleteButtonTooltipMessage: tr('Elimina', 'Delete'),
                     // Quelle nate da un check-in emotivo si tolgono da lì.
                     onDeleted: entry.fromEmotion
                         ? null
@@ -1139,16 +1266,21 @@ class _ConcentrationCard extends StatelessWidget {
     return DailySection(
       icon: Icons.center_focus_strong_outlined,
       color: dailyPurple,
-      title: 'Concentrazione',
+      title: sectionLabel('Concentrazione'),
       status: StatusChip(
         done: day.dayConcentration.isNotEmpty,
-        label: day.dayConcentration.isEmpty ? 'Da segnare' : 'Fatto',
+        label: day.dayConcentration.isEmpty
+            ? tr('Da segnare', 'To mark')
+            : tr('Fatto', 'Done'),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const Text(
-            'Tocca un numero ogni volta che vuoi fotografare com’è la tua attenzione.',
+          Text(
+            tr(
+              'Tocca un numero ogni volta che vuoi fotografare com’è la tua attenzione.',
+              'Tap a number whenever you want to capture how your attention is.',
+            ),
             style: TextStyle(fontSize: 12.5, color: AppColors.textMuted),
           ),
           const SizedBox(height: 12),
@@ -1175,16 +1307,21 @@ class _MovementCard extends StatelessWidget {
     return DailySection(
       icon: Icons.graphic_eq,
       color: macOrange,
-      title: 'Movimento',
+      title: sectionLabel('Movimento'),
       status: StatusChip(
         done: level != null,
-        label: level == null ? 'Da segnare' : '$level su 5',
+        label: level == null
+            ? tr('Da segnare', 'To mark')
+            : tr('$level su 5', '$level of 5'),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const Text(
-            'Il livello di oggi, da 1 a 5. Puoi cambiarlo quando vuoi.',
+          Text(
+            tr(
+              'Il livello di oggi, da 1 a 5. Puoi cambiarlo quando vuoi.',
+              'Today’s level, from 1 to 5. You can change it any time.',
+            ),
             style: TextStyle(fontSize: 12.5, color: AppColors.textMuted),
           ),
           const SizedBox(height: 12),

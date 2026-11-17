@@ -44,6 +44,8 @@ import '../../organizer/application/organizer_controller.dart';
 import '../../organizer/data/organizer_local_store.dart';
 import '../../organizer/data/organizer_remote.dart';
 import '../../organizer/presentation/organizer_page.dart';
+import '../../../core/i18n/i18n.dart';
+import '../../../core/i18n/language_switch.dart';
 
 class HomeShell extends StatefulWidget {
   const HomeShell({required this.dependencies, super.key});
@@ -391,7 +393,7 @@ class _HomeShellState extends State<HomeShell> with WidgetsBindingObserver {
     context: context,
     builder: (context) => _overFrame(
       AlertDialog(
-        title: const Text('Stato sincronizzazione'),
+        title: Text(tr('Stato sincronizzazione', 'Sync status')),
         content: ListenableBuilder(
           listenable: Listenable.merge([_fitbit, _routines, _calendar, _tasks]),
           builder: (_, _) => Column(
@@ -399,31 +401,31 @@ class _HomeShellState extends State<HomeShell> with WidgetsBindingObserver {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Salute: ${_fitbit.isLoading
-                    ? 'aggiornamento in corso'
+                '${tr('Salute', 'Health')}: ${_fitbit.isLoading
+                    ? tr('aggiornamento in corso', 'updating')
                     : _fitbit.failure != null
-                    ? 'aggiornamento non riuscito'
+                    ? tr('aggiornamento non riuscito', 'update failed')
                     : _fitbit.isConnected
-                    ? 'collegata'
-                    : 'non collegata'}',
+                    ? tr('collegata', 'connected')
+                    : tr('non collegata', 'not connected')}',
               ),
               if (_fitbit.day != null)
                 Text(
-                  'Ultimo aggiornamento: ${_fitbit.day!.syncedAt.toLocal()}',
+                  '${tr('Ultimo aggiornamento', 'Last update')}: ${_fitbit.day!.syncedAt.toLocal()}',
                 ),
               const SizedBox(height: 12),
               Text(
-                'Routine: ${_routines.isSaving
-                    ? 'salvataggio in corso'
+                '${tr('Routine', 'Routine')}: ${_routines.isSaving
+                    ? tr('salvataggio in corso', 'saving')
                     : _routines.syncError != null || _routines.loadError != null
-                    ? 'verifica connessione'
-                    : 'caricate'}',
+                    ? tr('verifica connessione', 'check the connection')
+                    : tr('caricate', 'loaded')}',
               ),
               Text(
-                'Calendario: ${_calendar.failure != null ? 'verifica connessione Outlook' : '${_calendar.events.length} eventi'}',
+                '${tr('Calendario', 'Calendar')}: ${_calendar.failure != null ? tr('verifica connessione Outlook', 'check the Outlook connection') : tr('${_calendar.events.length} eventi', '${_calendar.events.length} events')}',
               ),
               Text(
-                'Attività: ${_tasks.error != null ? 'verifica connessione' : 'caricate'}',
+                '${tr('Attività', 'Tasks')}: ${_tasks.error != null ? tr('verifica connessione', 'check the connection') : tr('caricate', 'loaded')}',
               ),
             ],
           ),
@@ -436,11 +438,11 @@ class _HomeShellState extends State<HomeShell> with WidgetsBindingObserver {
               _routines.load();
               _tasks.load();
             },
-            child: const Text('Aggiorna'),
+            child: Text(tr('Aggiorna', 'Refresh')),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Chiudi'),
+            child: Text(tr('Chiudi', 'Close')),
           ),
         ],
       ),
@@ -450,16 +452,26 @@ class _HomeShellState extends State<HomeShell> with WidgetsBindingObserver {
     context: context,
     builder: (context) => _overFrame(
       AlertDialog(
-        title: const Text('Account e impostazioni'),
-        content: Text(
-          widget
-                  .dependencies
-                  .supabaseClientService
-                  .client
-                  .auth
-                  .currentUser
-                  ?.email ??
-              'Account',
+        title: Text(tr('Account e impostazioni', 'Account & settings')),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              widget
+                      .dependencies
+                      .supabaseClientService
+                      .client
+                      .auth
+                      .currentUser
+                      ?.email ??
+                  'Account',
+            ),
+            const SizedBox(height: 18),
+            Text(tr('Lingua', 'Language')),
+            const SizedBox(height: 8),
+            LanguageSwitch(onBeforeChange: () => Navigator.pop(context)),
+          ],
         ),
         actions: [
           if (widget.dependencies.authController.mfa case final mfa?)
@@ -473,25 +485,25 @@ class _HomeShellState extends State<HomeShell> with WidgetsBindingObserver {
                       _overFrame(MfaSettingsDialog(controller: mfa)),
                 );
               },
-              child: const Text('Sicurezza e 2FA'),
+              child: Text(tr('Sicurezza e 2FA', 'Security & 2FA')),
             ),
           TextButton(
             onPressed: () {
               Navigator.pop(context);
               _selectPage(5);
             },
-            child: const Text('Esporta dati'),
+            child: Text(tr('Esporta dati', 'Export data')),
           ),
           TextButton(
             onPressed: () {
               Navigator.pop(context);
               widget.dependencies.authController.signOut();
             },
-            child: const Text('Esci dall’account'),
+            child: Text(tr('Esci dall’account', 'Sign out')),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Chiudi'),
+            child: Text(tr('Chiudi', 'Close')),
           ),
         ],
       ),
@@ -521,7 +533,7 @@ class _HomeShellState extends State<HomeShell> with WidgetsBindingObserver {
 
 class _TaskSearch extends SearchDelegate<void> {
   _TaskSearch(this.controller)
-    : super(searchFieldLabel: 'Cerca nelle attività');
+    : super(searchFieldLabel: tr('Cerca nelle attività', 'Search tasks'));
   final TaskController controller;
   @override
   List<Widget> buildActions(BuildContext context) => [
@@ -543,7 +555,9 @@ class _TaskSearch extends SearchDelegate<void> {
           .where((t) => t.title.toLowerCase().contains(query.toLowerCase()))
           .toList();
       if (results.isEmpty) {
-        return const Center(child: Text('Nessuna attività trovata.'));
+        return Center(
+          child: Text(tr('Nessuna attività trovata.', 'No tasks found.')),
+        );
       }
       return ListView(
         children: [
@@ -553,10 +567,13 @@ class _TaskSearch extends SearchDelegate<void> {
               onChanged: (_) => controller.toggle(task.id),
               title: Text(task.title),
               subtitle: Text(switch (task.group) {
-                DashboardTaskGroup.personal => 'Personale',
-                DashboardTaskGroup.work => 'Lavoro',
-                DashboardTaskGroup.personalWork => 'Lavoro personale',
-                DashboardTaskGroup.posta => 'Posta',
+                DashboardTaskGroup.personal => tr('Personale', 'Personal'),
+                DashboardTaskGroup.work => tr('Lavoro', 'Work'),
+                DashboardTaskGroup.personalWork => tr(
+                  'Lavoro personale',
+                  'Side project',
+                ),
+                DashboardTaskGroup.posta => tr('Posta', 'Mail'),
               }),
             ),
         ],

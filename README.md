@@ -4,7 +4,8 @@
 from your Fitbit in one colourful place that shows one thing at a time and
 rewards every small step with a little hit of dopamine.
 
-> 🇮🇹 The app interface is currently in **Italian**. Translations are very welcome!
+> 🇬🇧 🇮🇹 **English and Italian.** The app follows your browser language, and you
+> can switch any time from *Account & settings*.
 
 https://github.com/user-attachments/assets/9032d5ca-14ed-4394-96d5-b0a91aa2d660
 
@@ -21,6 +22,8 @@ with generated data:
 flutter pub get
 flutter run -d chrome -t tool/demo_app.dart
 ```
+
+Add `?lang=it` or `?lang=en` to the address to pick the language.
 
 ## Why ADHD-friendly?
 
@@ -133,7 +136,9 @@ gaps:
 
 - some tables the app reads (habits, mood, screen time, measurements, photos,
   meal plans) don't have a migration in this repository yet;
-- the interface is Italian only for now;
+- sign-in and the main screens (Dashboard, Daily, Sport, To-do and the
+  statistics summaries) are in English and Italian; the other sections are still
+  Italian only, and translations are very welcome;
 - the Money section expects an Excel file with a specific layout.
 
 Ideas, bug reports and pull requests are welcome. Open an *Issue* to start.

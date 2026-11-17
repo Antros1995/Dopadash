@@ -7,6 +7,8 @@ import '../../app/theme.dart';
 import 'responsive_layout.dart';
 import '../storage/key_value_store.dart';
 import '../storage/key_value_store_factory.dart';
+import '../i18n/i18n.dart';
+import '../i18n/names.dart';
 
 class BoardModule {
   const BoardModule(
@@ -133,8 +135,12 @@ class ModularBoardState extends State<ModularBoard> {
       _free = restored.isNotEmpty;
       _repairOverlaps = _free;
     } catch (_) {
-      if (mounted && version == _loadVersion)
-        _error = 'Layout salvato non leggibile; disposizione predefinita.';
+      if (mounted && version == _loadVersion) {
+        _error = tr(
+          'Layout salvato non leggibile; disposizione predefinita.',
+          'Saved layout couldn’t be read; using the default one.',
+        );
+      }
     } finally {
       if (mounted && version == _loadVersion) setState(() => _ready = true);
     }
@@ -163,11 +169,14 @@ class ModularBoardState extends State<ModularBoard> {
     if (!_ready) return;
     unawaited(
       _persist().catchError((Object _) {
-        if (mounted)
+        if (mounted) {
           setState(
-            () => _error =
-                'Layout non salvato. Premi Salva layout per riprovare.',
+            () => _error = tr(
+              'Layout non salvato. Premi Salva layout per riprovare.',
+              'Layout not saved. Press Save layout to try again.',
+            ),
           );
+        }
       }),
     );
   }
@@ -185,7 +194,13 @@ class ModularBoardState extends State<ModularBoard> {
           _free = true;
         });
     } catch (_) {
-      if (mounted) setState(() => _error = 'Layout non salvato. Riprova.');
+      if (mounted)
+        setState(
+          () => _error = tr(
+            'Layout non salvato. Riprova.',
+            'Layout not saved. Try again.',
+          ),
+        );
     }
     if (mounted) setState(() => _saving = false);
   }
@@ -206,7 +221,10 @@ class ModularBoardState extends State<ModularBoard> {
           _error = null;
         });
     } catch (_) {
-      if (mounted) setState(() => _error = 'Ripristino non riuscito.');
+      if (mounted)
+        setState(
+          () => _error = tr('Ripristino non riuscito.', 'Reset failed.'),
+        );
     }
   }
 
@@ -278,10 +296,13 @@ class ModularBoardState extends State<ModularBoard> {
   @override
   Widget build(BuildContext context) {
     if (!_ready)
-      return const SizedBox(
+      return SizedBox(
         height: 48,
         child: Center(
-          child: Text('Ripristino layout…', style: TextStyle(fontSize: 12)),
+          child: Text(
+            tr('Ripristino layout…', 'Resetting layout…'),
+            style: TextStyle(fontSize: 12),
+          ),
         ),
       );
     final byId = {for (final m in widget.modules) m.id: m};
@@ -333,9 +354,12 @@ class ModularBoardState extends State<ModularBoard> {
         Row(
           children: [
             if (_editing)
-              const Expanded(
+              Expanded(
                 child: Text(
-                  'Posizione libera · salvataggio automatico · guide senza snap',
+                  tr(
+                    'Posizione libera · salvataggio automatico · guide senza snap',
+                    'Free positioning · saved automatically · guides without snapping',
+                  ),
                   style: TextStyle(color: AppColors.green, fontSize: 12),
                 ),
               )
@@ -344,7 +368,7 @@ class ModularBoardState extends State<ModularBoard> {
             if (_editing)
               TextButton(
                 onPressed: _saving ? null : _reset,
-                child: const Text('Ripristina layout'),
+                child: Text(tr('Ripristina layout', 'Reset layout')),
               ),
             TextButton.icon(
               onPressed: _saving
@@ -360,7 +384,11 @@ class ModularBoardState extends State<ModularBoard> {
                 _editing ? Icons.check : Icons.dashboard_customize_outlined,
                 size: 17,
               ),
-              label: Text(_editing ? 'Salva layout' : 'Modifica layout'),
+              label: Text(
+                _editing
+                    ? tr('Salva layout', 'Save layout')
+                    : tr('Modifica layout', 'Edit layout'),
+              ),
             ),
           ],
         ),
@@ -541,7 +569,7 @@ class ModularBoardState extends State<ModularBoard> {
                       const SizedBox(width: 5),
                       Expanded(
                         child: Text(
-                          m.title,
+                          sectionLabel(m.title),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: const TextStyle(fontSize: 11),

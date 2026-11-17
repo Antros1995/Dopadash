@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../app/theme.dart';
 import '../../../core/presentation/mac_widgets.dart';
 import '../domain/daily_models.dart';
+import '../../../core/i18n/i18n.dart';
 
 /// Esito della finestra: [value] nullo significa "cancella il dato".
 typedef ScreenTimeResult = ({ScreenTime? value});
@@ -47,7 +48,12 @@ class _ScreenTimeDialogState extends State<_ScreenTimeDialog> {
   void _addExclusion() {
     final name = _name.text.trim(), minutes = parseMinutes(_time.text);
     if (name.isEmpty || minutes == null || minutes == 0) {
-      setState(() => _error = 'Per escludere un’app servono nome e durata (es. 0:45).');
+      setState(
+        () => _error = tr(
+          'Per escludere un’app servono nome e durata (es. 0:45).',
+          'To exclude an app, give a name and a duration (e.g. 0:45).',
+        ),
+      );
       return;
     }
     setState(() {
@@ -67,7 +73,12 @@ class _ScreenTimeDialogState extends State<_ScreenTimeDialog> {
   void _save() {
     final total = parseMinutes(_total.text);
     if (total == null) {
-      setState(() => _error = 'Scrivi il totale in ore e minuti, per esempio 4:00.');
+      setState(
+        () => _error = tr(
+          'Scrivi il totale in ore e minuti, per esempio 4:00.',
+          'Write the total in hours and minutes, for example 4:00.',
+        ),
+      );
       return;
     }
     Navigator.pop<ScreenTimeResult>(context, (
@@ -97,7 +108,7 @@ class _ScreenTimeDialogState extends State<_ScreenTimeDialog> {
         ? null
         : ScreenTime(totalMinutes: total, exclusions: _exclusions);
     return AlertDialog(
-      title: const Text('Tempo al cellulare'),
+      title: Text(tr('Tempo al cellulare', 'Phone time')),
       content: SizedBox(
         width: 420,
         child: SingleChildScrollView(
@@ -105,8 +116,8 @@ class _ScreenTimeDialogState extends State<_ScreenTimeDialog> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const Text(
-                'Totale letto dal telefono',
+              Text(
+                tr('Totale letto dal telefono', 'Total read from the phone'),
                 style: TextStyle(fontSize: 12.5, color: AppColors.textMuted),
               ),
               const SizedBox(height: 6),
@@ -115,12 +126,15 @@ class _ScreenTimeDialogState extends State<_ScreenTimeDialog> {
                 autofocus: widget.current == null,
                 keyboardType: TextInputType.datetime,
                 onChanged: (_) => setState(() {}),
-                style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w700,
+                ),
                 decoration: _decoration('04:00'),
               ),
               const SizedBox(height: 16),
-              const Text(
-                'App da non conteggiare',
+              Text(
+                tr('App da non conteggiare', 'Apps that don’t count'),
                 style: TextStyle(fontSize: 12.5, color: AppColors.textMuted),
               ),
               const SizedBox(height: 6),
@@ -140,7 +154,10 @@ class _ScreenTimeDialogState extends State<_ScreenTimeDialog> {
                     IconButton(
                       onPressed: () =>
                           setState(() => _exclusions.remove(exclusion)),
-                      tooltip: 'Togli ${exclusion.name}',
+                      tooltip: tr(
+                        'Togli ${exclusion.name}',
+                        'Remove ${exclusion.name}',
+                      ),
                       visualDensity: VisualDensity.compact,
                       icon: const Icon(Icons.close, size: 16),
                     ),
@@ -153,7 +170,9 @@ class _ScreenTimeDialogState extends State<_ScreenTimeDialog> {
                     child: TextField(
                       controller: _name,
                       textInputAction: TextInputAction.next,
-                      decoration: _decoration('Nome, es. Maps'),
+                      decoration: _decoration(
+                        tr('Nome, es. Maps', 'Name, e.g. Maps'),
+                      ),
                     ),
                   ),
                   const SizedBox(width: 8),
@@ -168,7 +187,7 @@ class _ScreenTimeDialogState extends State<_ScreenTimeDialog> {
                   ),
                   IconButton(
                     onPressed: _addExclusion,
-                    tooltip: 'Aggiungi esclusione',
+                    tooltip: tr('Aggiungi esclusione', 'Add exclusion'),
                     icon: const Icon(Icons.add_circle, color: AppColors.green),
                   ),
                 ],
@@ -177,7 +196,10 @@ class _ScreenTimeDialogState extends State<_ScreenTimeDialog> {
               if (_error != null)
                 Text(
                   _error!,
-                  style: const TextStyle(fontSize: 12.5, color: AppColors.danger),
+                  style: const TextStyle(
+                    fontSize: 12.5,
+                    color: AppColors.danger,
+                  ),
                 )
               else if (preview != null)
                 Wrap(
@@ -185,7 +207,10 @@ class _ScreenTimeDialogState extends State<_ScreenTimeDialog> {
                   runSpacing: 6,
                   children: [
                     MacChip(
-                      'conteggiate ${formatMinutes(preview.countedMinutes)}',
+                      tr(
+                        'conteggiate ${formatMinutes(preview.countedMinutes)}',
+                        'counted ${formatMinutes(preview.countedMinutes)}',
+                      ),
                       tone: AppColors.green,
                     ),
                     MacChip('${preview.medal.emoji} ${preview.medal.label}'),
@@ -201,13 +226,13 @@ class _ScreenTimeDialogState extends State<_ScreenTimeDialog> {
             onPressed: () =>
                 Navigator.pop<ScreenTimeResult>(context, (value: null)),
             style: TextButton.styleFrom(foregroundColor: AppColors.danger),
-            child: const Text('Cancella il dato'),
+            child: Text(tr('Cancella il dato', 'Clear the value')),
           ),
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text('Annulla'),
+          child: Text(tr('Annulla', 'Cancel')),
         ),
-        FilledButton(onPressed: _save, child: const Text('Salva')),
+        FilledButton(onPressed: _save, child: Text(tr('Salva', 'Save'))),
       ],
     );
   }

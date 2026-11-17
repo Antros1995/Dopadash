@@ -4,34 +4,49 @@
 /// chiavi salvate non vanno cambiate.
 library;
 
+import '../../../core/i18n/i18n.dart';
+
 enum EmotionTone { good, neutral, hard }
 
 enum DailyEmotion {
-  happy('happy', '😀', 'Felice', EmotionTone.good),
-  joy('joy', '😁', 'Gioia', EmotionTone.good),
-  content('content', '😊', 'Contento', EmotionTone.good),
-  satisfied('satisfied', '😌', 'Soddisfatto', EmotionTone.good),
-  calm('calm', '🧘', 'Calmo', EmotionTone.good),
-  grateful('grateful', '🙏', 'Grato', EmotionTone.good),
-  inspired('inspired', '💡', 'Ispirato', EmotionTone.good),
-  excited('excited', '🤩', 'Eccitato', EmotionTone.good),
-  hyperfocus('hyperfocus', '🧠', 'Iperfocus', EmotionTone.good),
-  neutral('neutral', '😐', 'Neutro', EmotionTone.neutral),
-  tired('tired', '😴', 'Stanco', EmotionTone.neutral),
-  bored('bored', '😑', 'Annoiato', EmotionTone.neutral),
-  confused('confused', '🌀', 'Confuso', EmotionTone.neutral),
-  restless('restless', '🌪️', 'Irrequieto', EmotionTone.hard),
-  anxious('anxious', '😰', 'Ansioso', EmotionTone.hard),
-  stressed('stressed', '🤯', 'Stressato', EmotionTone.hard),
-  overwhelmed('overwhelmed', '😵', 'Sopraffatto', EmotionTone.hard),
-  irritated('irritated', '😤', 'Irritato', EmotionTone.hard),
-  angry('angry', '😡', 'Arrabbiato', EmotionTone.hard),
-  sad('sad', '😢', 'Triste', EmotionTone.hard),
-  afraid('afraid', '😨', 'Paura', EmotionTone.hard),
-  noData('no_data', '🚫', 'No dati', EmotionTone.neutral);
+  happy('happy', '😀', 'Felice', 'Happy', EmotionTone.good),
+  joy('joy', '😁', 'Gioia', 'Joyful', EmotionTone.good),
+  content('content', '😊', 'Contento', 'Content', EmotionTone.good),
+  satisfied('satisfied', '😌', 'Soddisfatto', 'Satisfied', EmotionTone.good),
+  calm('calm', '🧘', 'Calmo', 'Calm', EmotionTone.good),
+  grateful('grateful', '🙏', 'Grato', 'Grateful', EmotionTone.good),
+  inspired('inspired', '💡', 'Ispirato', 'Inspired', EmotionTone.good),
+  excited('excited', '🤩', 'Eccitato', 'Excited', EmotionTone.good),
+  hyperfocus('hyperfocus', '🧠', 'Iperfocus', 'Hyperfocus', EmotionTone.good),
+  neutral('neutral', '😐', 'Neutro', 'Neutral', EmotionTone.neutral),
+  tired('tired', '😴', 'Stanco', 'Tired', EmotionTone.neutral),
+  bored('bored', '😑', 'Annoiato', 'Bored', EmotionTone.neutral),
+  confused('confused', '🌀', 'Confuso', 'Confused', EmotionTone.neutral),
+  restless('restless', '🌪️', 'Irrequieto', 'Restless', EmotionTone.hard),
+  anxious('anxious', '😰', 'Ansioso', 'Anxious', EmotionTone.hard),
+  stressed('stressed', '🤯', 'Stressato', 'Stressed', EmotionTone.hard),
+  overwhelmed(
+    'overwhelmed',
+    '😵',
+    'Sopraffatto',
+    'Overwhelmed',
+    EmotionTone.hard,
+  ),
+  irritated('irritated', '😤', 'Irritato', 'Irritated', EmotionTone.hard),
+  angry('angry', '😡', 'Arrabbiato', 'Angry', EmotionTone.hard),
+  sad('sad', '😢', 'Triste', 'Sad', EmotionTone.hard),
+  afraid('afraid', '😨', 'Paura', 'Afraid', EmotionTone.hard),
+  noData('no_data', '🚫', 'No dati', 'No data', EmotionTone.neutral);
 
-  const DailyEmotion(this.key, this.emoji, this.label, this.tone);
-  final String key, emoji, label;
+  const DailyEmotion(
+    this.key,
+    this.emoji,
+    this.italian,
+    this.english,
+    this.tone,
+  );
+  final String key, emoji, italian, english;
+  String get label => tr(italian, english);
   final EmotionTone tone;
 
   static DailyEmotion? fromKey(Object? value) =>
@@ -39,25 +54,26 @@ enum DailyEmotion {
 }
 
 enum DailyEnergy {
-  depleted('depleted', 'A terra', '🪫'),
-  low('low', 'Bassa', '🔅'),
-  medium('medium', 'Media', '🔆'),
-  high('high', 'Alta', '⚡'),
-  noData('no_data', 'No dati', '');
+  depleted('depleted', 'A terra', 'Drained', '🪫'),
+  low('low', 'Bassa', 'Low', '🔅'),
+  medium('medium', 'Media', 'Medium', '🔆'),
+  high('high', 'Alta', 'High', '⚡'),
+  noData('no_data', 'No dati', 'No data', '');
 
-  const DailyEnergy(this.key, this.label, this.emoji);
-  final String key, label, emoji;
+  const DailyEnergy(this.key, this.italian, this.english, this.emoji);
+  final String key, italian, english, emoji;
+  String get label => tr(italian, english);
 
   static DailyEnergy? fromKey(Object? value) =>
       values.where((e) => e.key == value).firstOrNull;
 }
 
-const concentrationLabels = <int, String>{
-  1: 'Molto bassa',
-  2: 'Bassa',
-  3: 'Media',
-  4: 'Alta',
-  5: 'Massima',
+Map<int, String> get concentrationLabels => <int, String>{
+  1: tr('Molto bassa', 'Very low'),
+  2: tr('Bassa', 'Low'),
+  3: tr('Media', 'Medium'),
+  4: tr('Alta', 'High'),
+  5: tr('Massima', 'Maximum'),
 };
 
 class EmotionEntry {
@@ -97,11 +113,16 @@ class EmotionEntry {
 }
 
 enum ConcentrationKind {
-  day('daily_concentration_entries', 'Durante la giornata'),
-  meditation('meditation_concentration_entries', 'In meditazione');
+  day('daily_concentration_entries', 'Durante la giornata', 'During the day'),
+  meditation(
+    'meditation_concentration_entries',
+    'In meditazione',
+    'In meditation',
+  );
 
-  const ConcentrationKind(this.table, this.label);
-  final String table, label;
+  const ConcentrationKind(this.table, this.italian, this.english);
+  final String table, italian, english;
+  String get label => tr(italian, english);
 }
 
 class ConcentrationEntry {
@@ -161,15 +182,16 @@ class ScreenTimeExclusion {
 }
 
 enum ScreenTimeMedal {
-  diamond('Diamante', '💎', 2),
-  platinum('Platino', '🏆', 1.6),
-  gold('Oro', '🥇', 1.2),
-  silver('Argento', '🥈', .8),
-  bronze('Bronzo', '🥉', .4),
-  tooMuch('Troppo', '📵', 0);
+  diamond('Diamante', 'Diamond', '💎', 2),
+  platinum('Platino', 'Platinum', '🏆', 1.6),
+  gold('Oro', 'Gold', '🥇', 1.2),
+  silver('Argento', 'Silver', '🥈', .8),
+  bronze('Bronzo', 'Bronze', '🥉', .4),
+  tooMuch('Troppo', 'Too much', '📵', 0);
 
-  const ScreenTimeMedal(this.label, this.emoji, this.bonus);
-  final String label, emoji;
+  const ScreenTimeMedal(this.italian, this.english, this.emoji, this.bonus);
+  final String italian, english, emoji;
+  String get label => tr(italian, english);
   final double bonus;
 
   static ScreenTimeMedal fromMinutes(int minutes) => minutes < 90
@@ -219,15 +241,16 @@ int? parseMinutes(String raw) {
 
 /// Coppa della giornata, con le stesse soglie dell'app per iPhone.
 enum DayMedal {
-  none('Ancora nessuna coppa', '🎯', 0),
-  bronze('Bronzo', '🥉', 20),
-  silver('Argento', '🥈', 50),
-  gold('Oro', '🥇', 70),
-  platinum('Platino', '🏆', 80),
-  diamond('Diamante', '💎', 90);
+  none('Ancora nessuna coppa', 'No cup yet', '🎯', 0),
+  bronze('Bronzo', 'Bronze', '🥉', 20),
+  silver('Argento', 'Silver', '🥈', 50),
+  gold('Oro', 'Gold', '🥇', 70),
+  platinum('Platino', 'Platinum', '🏆', 80),
+  diamond('Diamante', 'Diamond', '💎', 90);
 
-  const DayMedal(this.label, this.emoji, this.threshold);
-  final String label, emoji;
+  const DayMedal(this.italian, this.english, this.emoji, this.threshold);
+  final String italian, english, emoji;
+  String get label => tr(italian, english);
   final int threshold;
 
   static DayMedal fromRate(double rate) {
@@ -235,8 +258,7 @@ enum DayMedal {
     return values.lastWhere((m) => percent >= m.threshold);
   }
 
-  DayMedal? get next =>
-      index + 1 < values.length ? values[index + 1] : null;
+  DayMedal? get next => index + 1 < values.length ? values[index + 1] : null;
 }
 
 class DailyLifeDay {
@@ -257,19 +279,22 @@ class DailyLifeDay {
   final ScreenTime? screenTime;
 
   List<ConcentrationEntry> concentration(ConcentrationKind kind) =>
-      kind == ConcentrationKind.day ? dayConcentration : meditationConcentration;
+      kind == ConcentrationKind.day
+      ? dayConcentration
+      : meditationConcentration;
 }
 
 enum BodyMetric {
-  weight('weight_kg', 'Peso', 'kg'),
-  arms('arms_cm', 'Braccia', 'cm'),
-  triceps('triceps_cm', 'Tricipiti', 'cm'),
-  chest('chest_cm', 'Petto', 'cm'),
-  waist('waist_cm', 'Vita', 'cm'),
-  thigh('thigh_cm', 'Coscia', 'cm');
+  weight('weight_kg', 'Peso', 'Weight', 'kg'),
+  arms('arms_cm', 'Braccia', 'Arms', 'cm'),
+  triceps('triceps_cm', 'Tricipiti', 'Triceps', 'cm'),
+  chest('chest_cm', 'Petto', 'Chest', 'cm'),
+  waist('waist_cm', 'Vita', 'Waist', 'cm'),
+  thigh('thigh_cm', 'Coscia', 'Thigh', 'cm');
 
-  const BodyMetric(this.column, this.label, this.unit);
-  final String column, label, unit;
+  const BodyMetric(this.column, this.italian, this.english, this.unit);
+  final String column, italian, english, unit;
+  String get label => tr(italian, english);
 }
 
 class BodyMeasurement {

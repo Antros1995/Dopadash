@@ -4,7 +4,8 @@
 //
 //   flutter run -d chrome -t tool/demo_app.dart
 //
-// Add ?page=N to the URL to open a section directly:
+// Add ?lang=en or ?lang=it to choose the language, and ?page=N to open a
+// section directly:
 // 0 Monitoraggio, 1 To Do, 6 Statistiche, 8 Quotidianità, 9 Sport.
 import 'dart:math';
 
@@ -32,9 +33,16 @@ import 'package:monitoraggio_personale_desktop/features/tasks/application/task_c
 import 'package:monitoraggio_personale_desktop/features/tasks/data/task_repository.dart';
 import 'package:monitoraggio_personale_desktop/features/tasks/domain/dashboard_task.dart';
 import 'package:monitoraggio_personale_desktop/features/tasks/presentation/todo_page.dart';
+import 'package:monitoraggio_personale_desktop/core/i18n/i18n.dart';
+import 'package:monitoraggio_personale_desktop/core/i18n/names.dart';
+import 'package:monitoraggio_personale_desktop/core/storage/key_value_store_factory.dart';
+import 'package:web/web.dart' as web;
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await loadAppLanguage(createKeyValueStore());
+  final lang = AppLanguage.fromCode(Uri.base.queryParameters['lang']);
+  if (lang != null) appLanguage.value = lang;
   final today = dateOnly(DateTime.now());
   final fitbit = FitbitController(
     repository: _DemoFitbit(today),
@@ -63,8 +71,8 @@ Future<void> main() async {
       debugShowCheckedModeBanner: false,
       title: 'DopaDash demo',
       theme: buildDesktopTheme(),
-      locale: const Locale('it'),
-      supportedLocales: const [Locale('it')],
+      locale: appLanguage.value.locale,
+      supportedLocales: const [Locale('it'), Locale('en')],
       localizationsDelegates: GlobalMaterialLocalizations.delegates,
       home: _Demo(fitbit, routines, calendar, tasks),
     ),
@@ -138,16 +146,52 @@ class _DemoState extends State<_Demo> {
   void info() => showDialog<void>(
     context: context,
     builder: (c) => AlertDialog(
-      title: const Text('Demo DopaDash'),
-      content: const Text(
-        'Questa è una demo con dati inventati. Nella demo sono disponibili '
-        'Monitoraggio, To Do, Statistiche, Quotidianità e Sport. Per usare '
-        'tutte le sezioni con i tuoi dati, segui il README.',
+      title: Text(tr('Demo DopaDash', 'DopaDash demo')),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            tr(
+              'Questa è una demo con dati inventati. Nella demo sono '
+                  'disponibili Monitoraggio, To Do, Statistiche, Quotidianità '
+                  'e Sport. Per usare tutte le sezioni con i tuoi dati, segui '
+                  'il README.',
+              'This is a demo with invented data. It includes Dashboard, '
+                  'To-do, Statistics, Daily and Sport. To use every section '
+                  'with your own data, follow the README.',
+            ),
+          ),
+          const SizedBox(height: 18),
+          Text(tr('Lingua', 'Language')),
+          const SizedBox(height: 8),
+          // The demo data is generated in the chosen language, so switching
+          // reloads the page with the new ?lang= value.
+          SegmentedButton<AppLanguage>(
+            showSelectedIcon: false,
+            segments: [
+              for (final language in AppLanguage.values)
+                ButtonSegment(value: language, label: Text(language.label)),
+            ],
+            selected: {appLanguage.value},
+            onSelectionChanged: (selection) {
+              setAppLanguage(selection.first, createKeyValueStore());
+              web.window.location.href = Uri.base
+                  .replace(
+                    queryParameters: {
+                      ...Uri.base.queryParameters,
+                      'lang': selection.first.code,
+                    },
+                  )
+                  .toString();
+            },
+          ),
+        ],
       ),
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(c),
-          child: const Text('Chiudi'),
+          child: Text(tr('Chiudi', 'Close')),
         ),
       ],
     ),
@@ -193,7 +237,7 @@ class _DemoState extends State<_Demo> {
             children: [
               for (final name in const ['Abitudini', 'Cellulare', 'Sport']) ...[
                 Text(
-                  name,
+                  sectionLabel(name),
                   style: const TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.w700,
@@ -288,7 +332,7 @@ class _DemoFitbit implements FitbitRepository {
       if (gym && !isToday || gym && isToday && progress > .75)
         {
           'type': 'WEIGHTS',
-          'name': 'Allenamento con i pesi',
+          'name': tr('Allenamento con i pesi', 'Weight training'),
           'startTime': DateTime(
             day.year,
             day.month,
@@ -304,7 +348,7 @@ class _DemoFitbit implements FitbitRepository {
       if (run)
         {
           'type': 'RUNNING',
-          'name': 'Corsa',
+          'name': tr('Corsa', 'Run'),
           'startTime': DateTime(
             day.year,
             day.month,
@@ -608,11 +652,19 @@ class _DemoDaily implements DailyRepository {
       movement: movement[k],
       screenTime: screen.containsKey(k)
           ? screen[k]
-          : const ScreenTime(
+          : ScreenTime(
               totalMinutes: 210,
               exclusions: [
-                ScreenTimeExclusion(id: 'x', name: 'Mappe', minutes: 40),
-                ScreenTimeExclusion(id: 'y', name: 'Lingue', minutes: 35),
+                ScreenTimeExclusion(
+                  id: 'x',
+                  name: tr('Mappe', 'Maps'),
+                  minutes: 40,
+                ),
+                ScreenTimeExclusion(
+                  id: 'y',
+                  name: tr('Lingue', 'Languages'),
+                  minutes: 35,
+                ),
               ],
             ),
     );
@@ -739,17 +791,41 @@ class _DemoCalendar implements CalendarRepository {
       date: date.toIso8601String().substring(0, 10),
       timeZone: 'Europe/Rome',
       events: [
-        event('1', 'Stand-up del team', 9, 30, 15, 'Online'),
+        event(
+          '1',
+          tr('Stand-up del team', 'Team stand-up'),
+          9,
+          30,
+          15,
+          'Online',
+        ),
         event(
           '2',
-          'Lavoro concentrato (telefono in un\'altra stanza)',
+          tr(
+            'Lavoro concentrato (telefono in un\'altra stanza)',
+            'Deep work (phone in another room)',
+          ),
           10,
           0,
           90,
         ),
-        event('3', 'Pausa camminata', 12, 30, 20),
-        event('4', 'Revisione del progetto', 15, 0, 45, 'Sala riunioni'),
-        event('5', 'Lezione di yoga', 19, 30, 60, 'Palestra'),
+        event('3', tr('Pausa camminata', 'Walking break'), 12, 30, 20),
+        event(
+          '4',
+          tr('Revisione del progetto', 'Project review'),
+          15,
+          0,
+          45,
+          tr('Sala riunioni', 'Meeting room'),
+        ),
+        event(
+          '5',
+          tr('Lezione di yoga', 'Yoga class'),
+          19,
+          30,
+          60,
+          tr('Palestra', 'Gym'),
+        ),
       ],
     );
   }
@@ -766,28 +842,28 @@ class _DemoTasks implements TaskRepository {
   late List<DashboardTask> items = [
     task(
       '1',
-      'Prenotare il dentista',
+      tr('Prenotare il dentista', 'Book the dentist'),
       DashboardTaskGroup.personal,
       DashboardTaskColor.red,
       0,
     ),
     task(
       '2',
-      'Rinnovare l\'abbonamento della palestra',
+      tr('Rinnovare l\'abbonamento della palestra', 'Renew the gym membership'),
       DashboardTaskGroup.personal,
       DashboardTaskColor.blue,
       3,
     ),
     task(
       '3',
-      'Comprare un regalo di compleanno',
+      tr('Comprare un regalo di compleanno', 'Buy a birthday present'),
       DashboardTaskGroup.personal,
       DashboardTaskColor.black,
       -2,
     ),
     task(
       '4',
-      'Annaffiare le piante',
+      tr('Annaffiare le piante', 'Water the plants'),
       DashboardTaskGroup.personal,
       DashboardTaskColor.green,
       0,
@@ -795,28 +871,31 @@ class _DemoTasks implements TaskRepository {
     ),
     task(
       '5',
-      'Preparare la presentazione di venerdì',
+      tr(
+        'Preparare la presentazione di venerdì',
+        'Prepare Friday’s presentation',
+      ),
       DashboardTaskGroup.work,
       DashboardTaskColor.red,
       0,
     ),
     task(
       '6',
-      'Rispondere alle email arretrate',
+      tr('Rispondere alle email arretrate', 'Reply to old emails'),
       DashboardTaskGroup.work,
       DashboardTaskColor.yellow,
       1,
     ),
     task(
       '7',
-      'Aggiornare il foglio del budget',
+      tr('Aggiornare il foglio del budget', 'Update the budget sheet'),
       DashboardTaskGroup.work,
       DashboardTaskColor.green,
       5,
     ),
     task(
       '8',
-      'Inviare il resoconto della riunione',
+      tr('Inviare il resoconto della riunione', 'Send the meeting notes'),
       DashboardTaskGroup.work,
       DashboardTaskColor.black,
       -1,
@@ -824,28 +903,28 @@ class _DemoTasks implements TaskRepository {
     ),
     task(
       '9',
-      'Leggere un capitolo sul focus',
+      tr('Leggere un capitolo sul focus', 'Read a chapter on focus'),
       DashboardTaskGroup.personalWork,
       DashboardTaskColor.blue,
       2,
     ),
     task(
       '10',
-      'Aggiornare il curriculum',
+      tr('Aggiornare il curriculum', 'Update my CV'),
       DashboardTaskGroup.personalWork,
       DashboardTaskColor.black,
       7,
     ),
     task(
       '11',
-      'Bolletta da pagare',
+      tr('Bolletta da pagare', 'Bill to pay'),
       DashboardTaskGroup.posta,
       DashboardTaskColor.black,
       0,
     ),
     task(
       '12',
-      'Conferma iscrizione al corso',
+      tr('Conferma iscrizione al corso', 'Confirm the course sign-up'),
       DashboardTaskGroup.posta,
       DashboardTaskColor.black,
       1,

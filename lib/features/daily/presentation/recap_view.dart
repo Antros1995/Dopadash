@@ -12,6 +12,7 @@ import '../domain/daily_models.dart';
 import 'daily_widgets.dart';
 import 'sport_page.dart' show StatTile;
 import 'trend_chart.dart';
+import '../../../core/i18n/i18n.dart';
 
 const recapSections = {'Abitudini', 'Cellulare', 'Sport'};
 
@@ -141,10 +142,10 @@ class _RecapViewState extends State<RecapView> {
             values: const [30, 90, 365, 0],
             selected: _days,
             labelFor: (d) => d == 0
-                ? 'Tutto'
+                ? tr('Tutto', 'All')
                 : d == 365
-                ? '12 mesi'
-                : '$d giorni',
+                ? tr('12 mesi', '12 months')
+                : tr('$d giorni', '$d days'),
             onSelected: (d) {
               _days = d;
               _load();
@@ -237,7 +238,14 @@ class _RecapViewState extends State<RecapView> {
       }
     }
     if (rates.isEmpty) {
-      return [_empty('Nessuna abitudine registrata in questo periodo.')];
+      return [
+        _empty(
+          tr(
+            'Nessuna abitudine registrata in questo periodo.',
+            'No habits logged in this period.',
+          ),
+        ),
+      ];
     }
     final medals = <DayMedal, int>{};
     for (final rate in rates.values) {
@@ -258,18 +266,28 @@ class _RecapViewState extends State<RecapView> {
       );
     return [
       _tiles([
-        ('Giorni registrati', '${rates.length}', 'su $_span', AppColors.green),
-        ('Completamento medio', '${(average * 100).round()}', '%', dailyBlue),
         (
-          'Giorni da oro in su',
+          tr('Giorni registrati', 'Days logged'),
+          '${rates.length}',
+          tr('su $_span', 'of $_span'),
+          AppColors.green,
+        ),
+        (
+          tr('Completamento medio', 'Average completion'),
+          '${(average * 100).round()}',
+          '%',
+          dailyBlue,
+        ),
+        (
+          tr('Giorni da oro in su', 'Gold days or better'),
           '${rates.values.where((r) => r >= .7).length}',
           '',
           const Color(0xFFD99A00),
         ),
         (
-          'Serie migliore',
+          tr('Serie migliore', 'Best streak'),
           '$best',
-          best == 1 ? 'giorno' : 'giorni',
+          best == 1 ? tr('giorno', 'day') : tr('giorni', 'days'),
           dailyPurple,
         ),
       ]),
@@ -277,7 +295,7 @@ class _RecapViewState extends State<RecapView> {
       DailySection(
         icon: Icons.emoji_events_outlined,
         color: const Color(0xFFD99A00),
-        title: 'Coppa giorno per giorno',
+        title: tr('Coppa giorno per giorno', 'Cup day by day'),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -289,7 +307,7 @@ class _RecapViewState extends State<RecapView> {
               colorFor: (v) => medalColor(DayMedal.fromRate(v / 100)),
               axisLabel: (v) => '${v.round()}%',
               describe: (v) => v == null
-                  ? 'nessuna abitudine registrata'
+                  ? tr('nessuna abitudine registrata', 'no habits logged')
                   : '${v.round()}% · ${DayMedal.fromRate(v / 100).emoji} ${DayMedal.fromRate(v / 100).label}',
             ),
             const SizedBox(height: 10),
@@ -300,7 +318,7 @@ class _RecapViewState extends State<RecapView> {
                 for (final m in DayMedal.values.reversed)
                   if (medals[m] != null)
                     MacChip(
-                      '${m.emoji} ${m == DayMedal.none ? 'Nessuna' : m.label} · ${medals[m]}',
+                      '${m.emoji} ${m == DayMedal.none ? tr('Nessuna', 'None') : m.label} · ${medals[m]}',
                       tone: medalColor(m),
                     ),
               ],
@@ -311,7 +329,10 @@ class _RecapViewState extends State<RecapView> {
       const SizedBox(height: 12),
       DailySection(
         icon: Icons.checklist_rounded,
-        title: 'Quanto riesci a fare ogni abitudine',
+        title: tr(
+          'Quanto riesci a fare ogni abitudine',
+          'How often you do each habit',
+        ),
         child: Column(
           children: [
             for (final id in habits)
@@ -335,7 +356,12 @@ class _RecapViewState extends State<RecapView> {
     };
     if (values.isEmpty) {
       return [
-        _empty('Nessun tempo al cellulare registrato in questo periodo.'),
+        _empty(
+          tr(
+            'Nessun tempo al cellulare registrato in questo periodo.',
+            'No phone time logged in this period.',
+          ),
+        ),
       ];
     }
     final list = values.values.toList();
@@ -358,25 +384,34 @@ class _RecapViewState extends State<RecapView> {
         : AppColors.danger;
     return [
       _tiles([
-        ('Media al giorno', hours(average), 'ore', tone(average)),
         (
-          'Giorno migliore',
+          tr('Media al giorno', 'Daily average'),
+          hours(average),
+          tr('ore', 'hours'),
+          tone(average),
+        ),
+        (
+          tr('Giorno migliore', 'Best day'),
           hours(best.value),
           shortDay(best.key),
           AppColors.green,
         ),
         (
-          'Giorni sotto le 2 ore',
+          tr('Giorni sotto le 2 ore', 'Days under 2 hours'),
           '${list.where((v) => v < 120).length}',
-          'su ${list.length}',
+          tr('su ${list.length}', 'of ${list.length}'),
           dailyBlue,
         ),
         (
-          'Tendenza',
+          tr('Tendenza', 'Trend'),
           trend.abs() < 3
-              ? 'stabile'
+              ? tr('stabile', 'steady')
               : '${trend < 0 ? '▼' : '▲'} ${hours(trend.abs())}',
-          trend.abs() < 3 ? '' : (trend < 0 ? 'in calo' : 'in aumento'),
+          trend.abs() < 3
+              ? ''
+              : (trend < 0
+                    ? tr('in calo', 'falling')
+                    : tr('in aumento', 'rising')),
           trend <= 0 ? AppColors.green : AppColors.danger,
         ),
       ]),
@@ -384,7 +419,10 @@ class _RecapViewState extends State<RecapView> {
       DailySection(
         icon: Icons.smartphone,
         color: dailyBlue,
-        title: 'Tempo conteggiato giorno per giorno',
+        title: tr(
+          'Tempo conteggiato giorno per giorno',
+          'Counted time day by day',
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -399,8 +437,11 @@ class _RecapViewState extends State<RecapView> {
               axisLabel: (v) => hours(v),
               guide: 120,
               describe: (v) => v == null
-                  ? 'non registrato'
-                  : '${hours(v)} conteggiate · ${ScreenTimeMedal.fromMinutes(v.round()).emoji} ${ScreenTimeMedal.fromMinutes(v.round()).label}',
+                  ? tr('non registrato', 'not logged')
+                  : tr(
+                      '${hours(v)} conteggiate · ${ScreenTimeMedal.fromMinutes(v.round()).emoji} ${ScreenTimeMedal.fromMinutes(v.round()).label}',
+                      '${hours(v)} counted · ${ScreenTimeMedal.fromMinutes(v.round()).emoji} ${ScreenTimeMedal.fromMinutes(v.round()).label}',
+                    ),
             ),
             const SizedBox(height: 10),
             Wrap(
@@ -410,7 +451,9 @@ class _RecapViewState extends State<RecapView> {
                 for (final m in ScreenTimeMedal.values)
                   if (medals[m] != null)
                     MacChip('${m.emoji} ${m.label} · ${medals[m]}'),
-                const MacChip('linea tratteggiata: 2 ore'),
+                MacChip(
+                  tr('linea tratteggiata: 2 ore', 'dashed line: 2 hours'),
+                ),
               ],
             ),
           ],
@@ -439,7 +482,7 @@ class _RecapViewState extends State<RecapView> {
                   .firstOrNull
                   ?.label ??
               entry.selectedDetailLabelSnapshot ??
-              'Senza scheda';
+              tr('Senza scheda', 'No plan');
           plans[label] = (plans[label] ?? 0) + 1;
         } else if (r.iconKey == 'walking') {
           walks++;
@@ -463,25 +506,30 @@ class _RecapViewState extends State<RecapView> {
         ? null
         : plans.entries.reduce((a, b) => a.value >= b.value ? a : b);
     final weeks = _span / 7;
-    String number(double v) => v
-        .toStringAsFixed(1)
-        .replaceAll(RegExp(r'\.0$'), '')
-        .replaceAll('.', ',');
+    String number(double v) =>
+        decimal(v.toStringAsFixed(1).replaceAll(RegExp(r'\.0$'), ''));
     final total = plans.values.fold(0, (a, b) => a + b);
     return [
       _tiles([
-        ('Allenamenti in palestra', '${sessions.length}', '', macOrange),
         (
-          'Media a settimana',
+          tr('Allenamenti in palestra', 'Gym workouts'),
+          '${sessions.length}',
+          '',
+          macOrange,
+        ),
+        (
+          tr('Media a settimana', 'Weekly average'),
           number(sessions.length / weeks),
-          'volte',
+          tr('volte', 'times'),
           dailyBlue,
         ),
-        ('Camminate', '$walks', '', AppColors.green),
+        (tr('Camminate', 'Walks'), '$walks', '', AppColors.green),
         (
-          'Allenamento più frequente',
+          tr('Allenamento più frequente', 'Most frequent workout'),
           favourite == null ? '—' : favourite.key.split(' – ').first,
-          favourite == null ? '' : '${favourite.value} volte',
+          favourite == null
+              ? ''
+              : tr('${favourite.value} volte', '${favourite.value} times'),
           dailyPurple,
         ),
       ]),
@@ -489,9 +537,14 @@ class _RecapViewState extends State<RecapView> {
       DailySection(
         icon: Icons.fitness_center,
         color: macOrange,
-        title: 'Giorni di palestra',
+        title: tr('Giorni di palestra', 'Gym days'),
         child: sessions.isEmpty
-            ? _empty('Nessun allenamento segnato in questo periodo.')
+            ? _empty(
+                tr(
+                  'Nessun allenamento segnato in questo periodo.',
+                  'No workouts marked in this period.',
+                ),
+              )
             : Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
@@ -503,8 +556,9 @@ class _RecapViewState extends State<RecapView> {
                     colorFor: (_) => macOrange,
                     axisLabel: (_) => '',
                     showAxis: false,
-                    describe: (v) =>
-                        v == null ? 'nessun allenamento' : 'allenamento fatto',
+                    describe: (v) => v == null
+                        ? tr('nessun allenamento', 'no workout')
+                        : tr('allenamento fatto', 'workout done'),
                   ),
                   const SizedBox(height: 8),
                   for (final plan in plans.keys.toList()..sort())
@@ -521,8 +575,14 @@ class _RecapViewState extends State<RecapView> {
       DailySection(
         icon: Icons.monitor_weight_outlined,
         title: wholeHistory
-            ? 'Peso e misure · tutto lo storico'
-            : 'Peso e misure nel periodo',
+            ? tr(
+                'Peso e misure · tutto lo storico',
+                'Weight & measurements · full history',
+              )
+            : tr(
+                'Peso e misure nel periodo',
+                'Weight & measurements in the period',
+              ),
         status: weights.length >= 2
             ? MacChip(
                 '${weights.last.$2 - weights.first.$2 > 0 ? '▲ +' : '▼ −'}${number((weights.last.$2 - weights.first.$2).abs())} ${_metric.unit}',
@@ -545,16 +605,22 @@ class _RecapViewState extends State<RecapView> {
             ),
             const SizedBox(height: 8),
             if (wholeHistory)
-              const Padding(
+              Padding(
                 padding: EdgeInsets.only(bottom: 6),
                 child: Text(
-                  'Nel periodo scelto ci sono meno di due misure: ecco tutte quelle registrate.',
+                  tr(
+                    'Nel periodo scelto ci sono meno di due misure: ecco tutte quelle registrate.',
+                    'There are fewer than two measurements in this period: here are all of them.',
+                  ),
                   style: TextStyle(fontSize: 12, color: AppColors.textMuted),
                 ),
               ),
             if (weights.isEmpty)
               _empty(
-                'Nessuna misura di ${_metric.label.toLowerCase()} registrata. Aggiungila dalla scheda Sport.',
+                tr(
+                  'Nessuna misura di ${_metric.label.toLowerCase()} registrata. Aggiungila dalla scheda Sport.',
+                  'No ${_metric.label.toLowerCase()} measurements yet. Add one from the Sport page.',
+                ),
               )
             else
               TrendChart(points: weights, unit: _metric.unit, height: 210),
@@ -702,7 +768,10 @@ class _DayBarsChartState extends State<DayBarsChart> {
         const SizedBox(height: 4),
         Text(
           date == null
-              ? 'Tocca o passa su una barra per leggere il valore del giorno.'
+              ? tr(
+                  'Tocca o passa su una barra per leggere il valore del giorno.',
+                  'Tap or hover over a bar to read the day’s value.',
+                )
               : '${two(date.day)}/${two(date.month)}/${date.year} · ${widget.describe(widget.values[date])}',
           style: TextStyle(
             fontSize: 12,

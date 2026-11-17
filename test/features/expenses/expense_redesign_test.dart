@@ -30,6 +30,8 @@ class _Portfolio extends ChangeNotifier implements PortfolioController {
   @override
   double get totalValue => 700;
   @override
+  DateTime? get firstActivityDate => null;
+  @override
   List<PortfolioHistoryPoint> historyFor(DateTime start, DateTime end) => [];
   @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);

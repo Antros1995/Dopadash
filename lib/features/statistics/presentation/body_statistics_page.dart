@@ -365,7 +365,7 @@ class _BodyStatisticsPageState extends State<BodyStatisticsPage> {
             children: [
               Expanded(
                 child: Text(
-                  capitalize(formatItalianDate(c.today)),
+                  capitalize(formatLongDate(c.today)),
                   style: const TextStyle(
                     fontSize: 12,
                     color: AppColors.green,
@@ -685,7 +685,7 @@ class _BodyStatisticsPageState extends State<BodyStatisticsPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          capitalize(formatItalianDate(c.today)),
+                          capitalize(formatLongDate(c.today)),
                           style: const TextStyle(
                             color: AppColors.green,
                             fontSize: 12,

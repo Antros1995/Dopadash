@@ -8,6 +8,8 @@ import '../../../core/presentation/responsive_layout.dart';
 import '../../../core/utils/date_formatters.dart';
 import '../application/task_controller.dart';
 import '../domain/dashboard_task.dart';
+import '../../../core/i18n/i18n.dart';
+import '../../../core/i18n/names.dart';
 
 /// Dedicated workspace for every task stored in the shared Supabase list.
 ///
@@ -72,7 +74,7 @@ class TodoPageState extends State<TodoPage> {
       initialDate: _dueDate,
       firstDate: DateTime(2020),
       lastDate: DateTime(2100),
-      locale: const Locale('it'),
+      locale: appLanguage.value.locale,
     );
     if (picked != null && mounted) {
       setState(() => _dueDate = picked);
@@ -83,17 +85,22 @@ class TodoPageState extends State<TodoPage> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Eliminare l’attività?'),
-        content: Text('“${task.title}” verrà eliminata definitivamente.'),
+        title: Text(tr('Eliminare l’attività?', 'Delete the task?')),
+        content: Text(
+          tr(
+            '“${task.title}” verrà eliminata definitivamente.',
+            '“${task.title}” will be deleted permanently.',
+          ),
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Annulla'),
+            child: Text(tr('Annulla', 'Cancel')),
           ),
           FilledButton(
             onPressed: () => Navigator.of(context).pop(true),
             style: FilledButton.styleFrom(backgroundColor: AppColors.danger),
-            child: const Text('Elimina'),
+            child: Text(tr('Elimina', 'Delete')),
           ),
         ],
       ),
@@ -146,18 +153,27 @@ class TodoPageState extends State<TodoPage> {
                 completedCount: completedTasks.length,
               ),
               if (_section == 'Posta')
-                const Text(
-                  'Promemoria del calendario dal 12/10/2026 · scadenze in ordine · riporto delle voci non spuntate · salvataggio su server e sincronizzazione in tempo reale.',
+                Text(
+                  tr(
+                    'Promemoria del calendario dal 12/10/2026 · scadenze in ordine · riporto delle voci non spuntate · salvataggio su server e sincronizzazione in tempo reale.',
+                    'Calendar reminders since 12/10/2026 · deadlines in order · unticked items carried over · saved on the server and synced in real time.',
+                  ),
                 ),
               if (widget.controller.postaSyncError != null &&
                   (_section == 'Posta' || _section == 'Panoramica'))
-                const Text(
-                  'Posta: sincronizzazione non disponibile, riprovo automaticamente.',
+                Text(
+                  tr(
+                    'Posta: sincronizzazione non disponibile, riprovo automaticamente.',
+                    'Mail: sync unavailable, retrying automatically.',
+                  ),
                   style: TextStyle(color: AppColors.textMuted),
                 ),
               if (widget.controller.error != null)
-                const Text(
-                  'Connessione attività non disponibile: verifica il salvataggio.',
+                Text(
+                  tr(
+                    'Connessione attività non disponibile: verifica il salvataggio.',
+                    'Task connection unavailable: check that saving works.',
+                  ),
                   style: TextStyle(color: AppColors.danger),
                 ),
               ModularBoard(
@@ -198,10 +214,16 @@ class TodoPageState extends State<TodoPage> {
                       BoardModule(
                         group.name,
                         switch (group) {
-                          DashboardTaskGroup.personal => 'Personali',
-                          DashboardTaskGroup.work => 'Lavorative',
-                          DashboardTaskGroup.personalWork => 'Lavoro personale',
-                          DashboardTaskGroup.posta => 'Posta',
+                          DashboardTaskGroup.personal => tr(
+                            'Personali',
+                            'Personal',
+                          ),
+                          DashboardTaskGroup.work => tr('Lavorative', 'Work'),
+                          DashboardTaskGroup.personalWork => tr(
+                            'Lavoro personale',
+                            'Side project',
+                          ),
+                          DashboardTaskGroup.posta => tr('Posta', 'Mail'),
                         },
                         widget.controller.isLoading
                             ? const Center(child: CircularProgressIndicator())
@@ -212,13 +234,22 @@ class TodoPageState extends State<TodoPage> {
                                 child: Column(
                                   children: [
                                     Text(switch (group) {
-                                      DashboardTaskGroup.personal =>
+                                      DashboardTaskGroup.personal => tr(
                                         'Attività personali',
-                                      DashboardTaskGroup.work =>
+                                        'Personal tasks',
+                                      ),
+                                      DashboardTaskGroup.work => tr(
                                         'Attività lavorative',
-                                      DashboardTaskGroup.personalWork =>
+                                        'Work tasks',
+                                      ),
+                                      DashboardTaskGroup.personalWork => tr(
                                         'Attività lavoro personale',
-                                      DashboardTaskGroup.posta => 'Posta',
+                                        'Side-project tasks',
+                                      ),
+                                      DashboardTaskGroup.posta => tr(
+                                        'Posta',
+                                        'Mail',
+                                      ),
                                     }),
                                     _EmptyTasks(filter: _filter),
                                   ],
@@ -258,10 +289,13 @@ class _TodoHeader extends StatelessWidget {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('To Do', style: _pageTitle),
+          Text(pageName(1), style: _pageTitle),
           const SizedBox(height: 5),
-          const Text(
-            'Le tue attività, sempre aggiornate.',
+          Text(
+            tr(
+              'Le tue attività, sempre aggiornate.',
+              'Your tasks, always up to date.',
+            ),
             style: TextStyle(color: AppColors.textMuted),
           ),
           const SizedBox(height: 12),
@@ -273,12 +307,12 @@ class _TodoHeader extends StatelessWidget {
               _CountPill(
                 icon: Icons.pending_actions_outlined,
                 count: openCount,
-                label: 'aperte',
+                label: tr('aperte', 'open'),
               ),
               _CountPill(
                 icon: Icons.task_alt_rounded,
                 count: completedCount,
-                label: 'fatte',
+                label: tr('fatte', 'done'),
               ),
             ],
           ),
@@ -292,10 +326,13 @@ class _TodoHeader extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text('To Do', style: _pageTitle),
+              Text(pageName(1), style: _pageTitle),
               const SizedBox(height: 4),
-              const Text(
-                'Tutte le attività in un unico spazio, aggiornato in tempo reale.',
+              Text(
+                tr(
+                  'Tutte le attività in un unico spazio, aggiornato in tempo reale.',
+                  'All your tasks in one place, updated in real time.',
+                ),
                 style: TextStyle(color: AppColors.textMuted),
               ),
             ],
@@ -306,13 +343,13 @@ class _TodoHeader extends StatelessWidget {
         _CountPill(
           icon: Icons.pending_actions_outlined,
           count: openCount,
-          label: 'aperte',
+          label: tr('aperte', 'open'),
         ),
         const SizedBox(width: AppSpacing.xs),
         _CountPill(
           icon: Icons.task_alt_rounded,
           count: completedCount,
-          label: 'fatte',
+          label: tr('fatte', 'done'),
         ),
       ],
     );
@@ -385,7 +422,10 @@ class _NewTaskCard extends StatelessWidget {
           onSubmitted: (_) => onSubmitted(),
           style: const TextStyle(fontSize: 14),
           decoration: InputDecoration(
-            hintText: 'Nuova attività… scrivi e premi Invio',
+            hintText: tr(
+              'Nuova attività… scrivi e premi Invio',
+              'New task… type and press Enter',
+            ),
             counterText: '',
             isDense: true,
             filled: true,
@@ -428,7 +468,10 @@ class _NewTaskCard extends StatelessWidget {
             ),
             _QuietButton(
               icon: const Icon(Icons.event_outlined, size: 15),
-              label: 'Entro ${formatShortDate(dueDate)}',
+              label: tr(
+                'Entro ${formatShortDate(dueDate)}',
+                'By ${formatShortDate(dueDate)}',
+              ),
               onPressed: onDueDateSelected,
             ),
             FilledButton(
@@ -437,7 +480,7 @@ class _NewTaskCard extends StatelessWidget {
                 minimumSize: const Size(0, 30),
                 padding: const EdgeInsets.symmetric(horizontal: 14),
               ),
-              child: const Text('Aggiungi'),
+              child: Text(tr('Aggiungi', 'Add')),
             ),
           ],
         ),
@@ -546,9 +589,15 @@ class _FilterBar extends StatelessWidget {
           for (final filter in _TodoFilter.values)
             ChoiceChip(
               label: Text(switch (filter) {
-                _TodoFilter.open => 'Da fare ($openCount)',
-                _TodoFilter.completed => 'Completate ($completedCount)',
-                _ => 'Tutte',
+                _TodoFilter.open => tr(
+                  'Da fare ($openCount)',
+                  'To do ($openCount)',
+                ),
+                _TodoFilter.completed => tr(
+                  'Completate ($completedCount)',
+                  'Completed ($completedCount)',
+                ),
+                _ => tr('Tutte', 'All'),
               }),
               selected: selected == filter,
               onSelected: (_) => onSelected(filter),
@@ -563,9 +612,12 @@ class _FilterBar extends StatelessWidget {
         selected: selected,
         onSelected: onSelected,
         labelFor: (filter) => switch (filter) {
-          _TodoFilter.open => 'Da fare ($openCount)',
-          _TodoFilter.completed => 'Completate ($completedCount)',
-          _TodoFilter.all => 'Tutte',
+          _TodoFilter.open => tr('Da fare ($openCount)', 'To do ($openCount)'),
+          _TodoFilter.completed => tr(
+            'Completate ($completedCount)',
+            'Completed ($completedCount)',
+          ),
+          _TodoFilter.all => tr('Tutte', 'All'),
         },
       ),
     );
@@ -621,10 +673,10 @@ class _TaskColumn extends StatelessWidget {
         ),
         const SizedBox(height: 6),
         if (tasks.isEmpty)
-          const Padding(
+          Padding(
             padding: EdgeInsets.symmetric(vertical: 18),
             child: Text(
-              'Nessuna attività in questa lista.',
+              tr('Nessuna attività in questa lista.', 'No tasks in this list.'),
               textAlign: TextAlign.center,
               style: TextStyle(color: AppColors.textMuted, fontSize: 12),
             ),
@@ -667,11 +719,7 @@ class _TodoTaskTile extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            MacCheck(
-              checked: task.isCompleted,
-              color: color,
-              onTap: onToggle,
-            ),
+            MacCheck(checked: task.isCompleted, color: color, onTap: onToggle),
             const SizedBox(width: 10),
             Expanded(
               child: Column(
@@ -694,7 +742,10 @@ class _TodoTaskTile extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Tooltip(
-                    message: 'Entro ${formatShortDate(task.scheduledDate)}',
+                    message: tr(
+                      'Entro ${formatShortDate(task.scheduledDate)}',
+                      'By ${formatShortDate(task.scheduledDate)}',
+                    ),
                     child: MacChip.due(
                       task.scheduledDate,
                       referenceDate,
@@ -707,7 +758,7 @@ class _TodoTaskTile extends StatelessWidget {
             ),
             IconButton(
               onPressed: onDelete,
-              tooltip: 'Elimina attività',
+              tooltip: tr('Elimina attività', 'Delete task'),
               visualDensity: VisualDensity.compact,
               icon: const Icon(
                 Icons.delete_outline_rounded,
@@ -781,9 +832,18 @@ class _EmptyTasks extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           Text(switch (filter) {
-            _TodoFilter.open => 'Non hai attività da completare.',
-            _TodoFilter.completed => 'Non hai ancora completato attività.',
-            _TodoFilter.all => 'Non hai ancora creato attività.',
+            _TodoFilter.open => tr(
+              'Non hai attività da completare.',
+              'Nothing left to do.',
+            ),
+            _TodoFilter.completed => tr(
+              'Non hai ancora completato attività.',
+              'You haven’t completed any tasks yet.',
+            ),
+            _TodoFilter.all => tr(
+              'Non hai ancora creato attività.',
+              'You haven’t created any tasks yet.',
+            ),
           }, style: const TextStyle(fontWeight: FontWeight.w700)),
         ],
       ),
@@ -794,10 +854,10 @@ class _EmptyTasks extends StatelessWidget {
 enum _TodoFilter { open, completed, all }
 
 String taskGroupLabel(DashboardTaskGroup group) => switch (group) {
-  DashboardTaskGroup.personal => 'Personali',
-  DashboardTaskGroup.work => 'Lavoro',
-  DashboardTaskGroup.personalWork => 'Lavoro personale',
-  DashboardTaskGroup.posta => 'Posta',
+  DashboardTaskGroup.personal => tr('Personali', 'Personal'),
+  DashboardTaskGroup.work => tr('Lavoro', 'Work'),
+  DashboardTaskGroup.personalWork => tr('Lavoro personale', 'Side project'),
+  DashboardTaskGroup.posta => tr('Posta', 'Mail'),
 };
 
 Color taskColorValue(DashboardTaskColor color) => switch (color) {
@@ -809,9 +869,9 @@ Color taskColorValue(DashboardTaskColor color) => switch (color) {
 };
 
 String taskColorLabel(DashboardTaskColor color) => switch (color) {
-  DashboardTaskColor.black => 'Nero',
-  DashboardTaskColor.red => 'Rosso',
-  DashboardTaskColor.blue => 'Blu',
-  DashboardTaskColor.green => 'Verde',
-  DashboardTaskColor.yellow => 'Giallo',
+  DashboardTaskColor.black => tr('Nero', 'Black'),
+  DashboardTaskColor.red => tr('Rosso', 'Red'),
+  DashboardTaskColor.blue => tr('Blu', 'Blue'),
+  DashboardTaskColor.green => tr('Verde', 'Green'),
+  DashboardTaskColor.yellow => tr('Giallo', 'Yellow'),
 };

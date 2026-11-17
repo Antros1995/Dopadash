@@ -9,6 +9,7 @@ import '../../../routines/application/routine_controller.dart';
 import '../../../tasks/application/task_controller.dart';
 import '../../../tasks/domain/dashboard_task.dart';
 import 'routine_tile.dart';
+import '../../../../core/i18n/i18n.dart';
 
 class HomeHeading extends StatelessWidget {
   const HomeHeading({
@@ -76,8 +77,14 @@ class HomeHero extends StatelessWidget {
       final compact = box.maxWidth < 700;
       final sleep = day?.sleepMinutes;
       final subtitle = sleep != null && sleep > 0
-          ? '${sleep ~/ 60}h ${sleep % 60}m di sonno registrato. La tua giornata, a colpo d’occhio.'
-          : 'Salute, abitudini e impegni. Tutto nel tuo spazio personale.';
+          ? tr(
+              '${sleep ~/ 60}h ${sleep % 60}m di sonno registrato. La tua giornata, a colpo d’occhio.',
+              '${sleep ~/ 60}h ${sleep % 60}m of sleep recorded. Your day at a glance.',
+            )
+          : tr(
+              'Salute, abitudini e impegni. Tutto nel tuo spazio personale.',
+              'Health, habits and plans. All in your own space.',
+            );
       final controls = Container(
         decoration: BoxDecoration(
           color: Colors.white.withValues(alpha: .85),
@@ -87,7 +94,7 @@ class HomeHero extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             IconButton(
-              tooltip: 'Giorno precedente',
+              tooltip: tr('Giorno precedente', 'Previous day'),
               onPressed: () =>
                   onSelectDate(date.subtract(const Duration(days: 1))),
               icon: const Icon(Icons.chevron_left, size: 19),
@@ -108,11 +115,14 @@ class HomeHero extends StatelessWidget {
               ),
             ),
             IconButton(
-              tooltip: 'Giorno successivo',
+              tooltip: tr('Giorno successivo', 'Next day'),
               onPressed: () => onSelectDate(date.add(const Duration(days: 1))),
               icon: const Icon(Icons.chevron_right, size: 19),
             ),
-            HomeLink(label: 'Oggi', onTap: () => onSelectDate(DateTime.now())),
+            HomeLink(
+              label: tr('Oggi', 'Today'),
+              onTap: () => onSelectDate(DateTime.now()),
+            ),
           ],
         ),
       );
@@ -162,7 +172,7 @@ class HomeHero extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              capitalize(formatItalianDate(date)),
+                              capitalize(formatLongDate(date)),
                               style: const TextStyle(
                                 color: Color(0xFF078454),
                                 fontSize: 13,
@@ -170,7 +180,10 @@ class HomeHero extends StatelessWidget {
                             ),
                             const SizedBox(height: 5),
                             Text(
-                              'La tua vita, in equilibrio.',
+                              tr(
+                                'La tua vita, in equilibrio.',
+                                'Your life, in balance.',
+                              ),
                               style: TextStyle(
                                 fontSize: compact ? 24 : 29,
                                 height: 1.15,
@@ -307,10 +320,10 @@ class HomeRoutineCard extends StatelessWidget {
             child: Column(
               children: [
                 HomeHeading(
-                  title: 'Le tue routine',
+                  title: tr('Le tue routine', 'Your routines'),
                   icon: Icons.task_alt,
                   action: IconButton(
-                    tooltip: 'Chiudi',
+                    tooltip: tr('Chiudi', 'Close'),
                     onPressed: () => Navigator.pop(context),
                     icon: const Icon(Icons.close),
                   ),
@@ -330,7 +343,12 @@ class HomeRoutineCard extends StatelessWidget {
                 if (controller.syncError != null)
                   TextButton(
                     onPressed: controller.retrySave,
-                    child: const Text('Salvataggio non riuscito · Riprova'),
+                    child: Text(
+                      tr(
+                        'Salvataggio non riuscito · Riprova',
+                        'Save failed · Try again',
+                      ),
+                    ),
                   ),
               ],
             ),
@@ -349,20 +367,26 @@ class HomeRoutineCard extends StatelessWidget {
         children: [
           HomeHeading(
             title: DateUtils.isSameDay(controller.selectedDate, DateTime.now())
-                ? 'Routine di oggi'
-                : 'Routine del giorno',
+                ? tr('Routine di oggi', 'Today’s routine')
+                : tr('Routine del giorno', 'Day’s routine'),
             icon: Icons.track_changes,
             action: controller.loadError == null && !controller.isLoading
-                ? HomeLink(label: 'Vedi tutte ›', onTap: () => _all(context))
+                ? HomeLink(
+                    label: tr('Vedi tutte ›', 'See all ›'),
+                    onTap: () => _all(context),
+                  )
                 : null,
           ),
           const SizedBox(height: 5),
           Text(
             controller.isLoading
-                ? 'Caricamento…'
+                ? tr('Caricamento…', 'Loading…')
                 : controller.loadError != null
-                ? 'Dati non caricati'
-                : '${p.completedCount} di ${p.totalCount} completate',
+                ? tr('Dati non caricati', 'Data not loaded')
+                : tr(
+                    '${p.completedCount} di ${p.totalCount} completate',
+                    '${p.completedCount} of ${p.totalCount} done',
+                  ),
             style: const TextStyle(fontSize: 11),
           ),
           const SizedBox(height: 8),
@@ -373,22 +397,33 @@ class HomeRoutineCard extends StatelessWidget {
                 ? Center(
                     child: TextButton(
                       onPressed: controller.load,
-                      child: const Text('Routine non disponibili · Riprova'),
+                      child: Text(
+                        tr(
+                          'Routine non disponibili · Riprova',
+                          'Routines unavailable · Try again',
+                        ),
+                      ),
                     ),
                   )
                 : controller.routines.isEmpty
-                ? const Center(child: Text('Nessuna routine configurata.'))
+                ? Center(
+                    child: Text(
+                      tr('Nessuna routine configurata.', 'No routines set up.'),
+                    ),
+                  )
                 : LayoutBuilder(
                     builder: (context, box) {
                       final small = box.maxWidth < 390;
                       return Row(
                         children: [
                           Tooltip(
-                            message:
-                                'Punteggio ponderato delle routine, con le regole già condivise con l’app mobile.',
+                            message: tr(
+                              'Punteggio ponderato delle routine, con le regole già condivise con l’app mobile.',
+                              'Weighted routine score, using the same rules as the mobile app.',
+                            ),
                             child: HomeRing(
                               value: p.percentage.toDouble(),
-                              label: 'Punteggio',
+                              label: tr('Punteggio', 'Score'),
                               color: AppColors.green,
                               size: small ? 102 : 136,
                               suffix: '%',
@@ -470,10 +505,13 @@ class HomeRoutineCard extends StatelessWidget {
                   ),
           ),
           if (controller.isSaving)
-            const Text('Salvataggio…', style: TextStyle(fontSize: 10)),
+            Text(tr('Salvataggio…', 'Saving…'), style: TextStyle(fontSize: 10)),
           if (controller.syncError != null)
             HomeLink(
-              label: 'Salvataggio non riuscito · Riprova',
+              label: tr(
+                'Salvataggio non riuscito · Riprova',
+                'Save failed · Try again',
+              ),
               onTap: controller.retrySave,
             ),
         ],
@@ -523,18 +561,27 @@ class _HomeTaskPreviewState extends State<HomeTaskPreview> {
                 : widget.group == DashboardTaskGroup.personal
                 ? Icons.person_outline
                 : Icons.work_outline,
-            action: HomeLink(label: 'Vedi tutte ›', onTap: widget.onOpen),
+            action: HomeLink(
+              label: tr('Vedi tutte ›', 'See all ›'),
+              onTap: widget.onOpen,
+            ),
           ),
           if (controller.isLoading) const LinearProgressIndicator(minHeight: 2),
           if (widget.group == DashboardTaskGroup.posta &&
               controller.postaSyncError != null)
-            const Text(
-              'Posta non sincronizzata · riprovo automaticamente',
+            Text(
+              tr(
+                'Posta non sincronizzata · riprovo automaticamente',
+                'Mail not synced · retrying automatically',
+              ),
               style: TextStyle(fontSize: 10, color: AppColors.textMuted),
             ),
           if (controller.error != null)
-            const Text(
-              'Riconnessione automatica · ultimi dati disponibili',
+            Text(
+              tr(
+                'Riconnessione automatica · ultimi dati disponibili',
+                'Reconnecting automatically · latest data available',
+              ),
               style: TextStyle(fontSize: 10, color: AppColors.textMuted),
             ),
           Expanded(
@@ -545,8 +592,11 @@ class _HomeTaskPreviewState extends State<HomeTaskPreview> {
                       padding: const EdgeInsets.symmetric(vertical: 8),
                       child: Text(
                         controller.isLoading || controller.error != null
-                            ? 'Sincronizzazione delle attività…'
-                            : 'Nessuna attività da fare.',
+                            ? tr(
+                                'Sincronizzazione delle attività…',
+                                'Syncing tasks…',
+                              )
+                            : tr('Nessuna attività da fare.', 'Nothing to do.'),
                         style: const TextStyle(fontSize: 11),
                       ),
                     ),
@@ -618,8 +668,8 @@ class _HomeTaskPreviewState extends State<HomeTaskPreview> {
             child: TextButton.icon(
               onPressed: widget.onOpen,
               icon: const Icon(Icons.add, size: 15),
-              label: const Text(
-                'Aggiungi attività',
+              label: Text(
+                tr('Aggiungi attività', 'Add task'),
                 style: TextStyle(fontSize: 11),
               ),
               style: TextButton.styleFrom(

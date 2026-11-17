@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../app/theme.dart';
+import '../i18n/i18n.dart';
 
 /// Elementi di elenco condivisi, con lo stesso aspetto dell'Organizzatore:
 /// casella tonda, etichette piccole, controllo a segmenti.
@@ -81,10 +82,17 @@ class MacChip extends StatelessWidget {
     if (completed) return MacChip('$short$time');
     final days = day.difference(now).inDays;
     return days < 0
-        ? MacChip('scaduta $short', tone: AppColors.danger)
+        ? MacChip(
+            tr('scaduta $short', 'overdue $short'),
+            tone: AppColors.danger,
+          )
         : days == 0
-        ? MacChip('scade oggi$time', tone: macOrange)
-        : MacChip(days == 1 ? 'scade domani$time' : 'scade $short$time');
+        ? MacChip(tr('scade oggi$time', 'due today$time'), tone: macOrange)
+        : MacChip(
+            days == 1
+                ? tr('scade domani$time', 'due tomorrow$time')
+                : tr('scade $short$time', 'due $short$time'),
+          );
   }
 
   @override
@@ -188,10 +196,6 @@ class MacDivider extends StatelessWidget {
   const MacDivider({this.indent = 34, super.key});
   final double indent;
   @override
-  Widget build(BuildContext context) => Divider(
-    height: 1,
-    thickness: 1,
-    indent: indent,
-    color: AppColors.border,
-  );
+  Widget build(BuildContext context) =>
+      Divider(height: 1, thickness: 1, indent: indent, color: AppColors.border);
 }

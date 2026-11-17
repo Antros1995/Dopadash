@@ -1,10 +1,10 @@
-
 import 'package:flutter/material.dart';
 
 import '../../../app/theme.dart';
 import '../../../core/presentation/mac_widgets.dart';
 import '../../../core/presentation/responsive_layout.dart';
-import '../../dashboard/presentation/widgets/routine_tile.dart' show routineIcon;
+import '../../dashboard/presentation/widgets/routine_tile.dart'
+    show routineIcon;
 import '../../fitbit/application/fitbit_controller.dart';
 import '../../routines/application/routine_controller.dart';
 import '../../routines/domain/routine.dart';
@@ -14,6 +14,8 @@ import 'daily_widgets.dart';
 import 'trend_chart.dart';
 import '../../wardrobe/wardrobe_repository.dart' show ProgressPhotoRepository;
 import 'progress_photos_card.dart';
+import '../../../core/i18n/i18n.dart';
+import '../../../core/i18n/names.dart';
 
 /// Sport: l'allenamento e l'alimentazione del giorno, l'attività misurata
 /// dall'orologio e, in fondo, peso e misure del corpo.
@@ -89,7 +91,9 @@ class SportPageState extends State<SportPage> {
         for (final r in routines.routines)
           if (_sportIcons.contains(r.iconKey)) r,
       ];
-      final marked = sport.where((r) => routines.entryFor(r.id).isMarked).length;
+      final marked = sport
+          .where((r) => routines.entryFor(r.id).isMarked)
+          .length;
       return SingleChildScrollView(
         controller: _scroll,
         padding: pageInsets(context, const EdgeInsets.fromLTRB(24, 22, 24, 40)),
@@ -100,9 +104,11 @@ class SportPageState extends State<SportPage> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 DailyHeader(
-                  title: 'Sport',
-                  subtitle:
-                      '${weekdayDate(daily.date)} · allenamento, alimentazione e misure',
+                  title: pageName(9),
+                  subtitle: tr(
+                    '${weekdayDate(daily.date)} · allenamento, alimentazione e misure',
+                    '${weekdayDate(daily.date)} · workout, nutrition and measurements',
+                  ),
                   date: daily.date,
                   today: daily.today,
                   onSelectDate: widget.onSelectDate,
@@ -120,16 +126,25 @@ class SportPageState extends State<SportPage> {
                   child: DailySection(
                     icon: Icons.fitness_center,
                     color: macOrange,
-                    title: 'Allenamento e alimentazione',
+                    title: tr(
+                      'Allenamento e alimentazione',
+                      'Workout & nutrition',
+                    ),
                     status: StatusChip(
                       done: sport.isNotEmpty && marked == sport.length,
                       label: sport.isEmpty
-                          ? 'Nessuna abitudine'
-                          : '$marked di ${sport.length} segnate',
+                          ? tr('Nessuna abitudine', 'No habits')
+                          : tr(
+                              '$marked di ${sport.length} segnate',
+                              '$marked of ${sport.length} marked',
+                            ),
                     ),
                     child: sport.isEmpty
-                        ? const Text(
-                            'Qui compaiono le abitudini Palestra, Camminata e Alimentazione quando sono attive nella Quotidianità.',
+                        ? Text(
+                            tr(
+                              'Qui compaiono le abitudini Palestra, Camminata e Alimentazione quando sono attive nella Quotidianità.',
+                              'The Gym, Walk and Nutrition habits show up here when they are active in Daily.',
+                            ),
                             style: TextStyle(
                               fontSize: 13,
                               color: AppColors.textMuted,
@@ -159,9 +174,8 @@ class SportPageState extends State<SportPage> {
                                           List<RoutineDetailOption>
                                         >(
                                           context: context,
-                                          builder: (_) => _OptionsDialog(
-                                            routine: sport[i],
-                                          ),
+                                          builder: (_) =>
+                                              _OptionsDialog(routine: sport[i]),
                                         );
                                     if (result != null) {
                                       await routines.updateDetailOptions(
@@ -263,13 +277,13 @@ class _SportHabit extends StatelessWidget {
           children: [
             ChoicePill(
               leading: '✓',
-              label: isFood ? 'Rispettata' : 'Fatto',
+              label: isFood ? tr('Rispettata', 'On plan') : tr('Fatto', 'Done'),
               selected: status == RoutineStatus.ok,
               onTap: () => toggle(RoutineStatus.ok),
             ),
             ChoicePill(
               leading: '✕',
-              label: isFood ? 'Sgarro' : 'Saltato',
+              label: isFood ? tr('Sgarro', 'Slip') : tr('Saltato', 'Skipped'),
               selected: status == RoutineStatus.ko,
               color: AppColors.danger,
               onTap: () => toggle(RoutineStatus.ko),
@@ -280,10 +294,10 @@ class _SportHabit extends StatelessWidget {
           const SizedBox(height: 10),
           Text(
             isFood
-                ? 'Quanto è stato lo sgarro?'
+                ? tr('Quanto è stato lo sgarro?', 'How big was the slip?')
                 : isGym
-                ? 'Che allenamento hai fatto?'
-                : 'Quale?',
+                ? tr('Che allenamento hai fatto?', 'Which workout did you do?')
+                : tr('Quale?', 'Which one?'),
             style: const TextStyle(
               fontSize: 12.5,
               fontWeight: FontWeight.w600,
@@ -308,7 +322,7 @@ class _SportHabit extends StatelessWidget {
                 TextButton.icon(
                   onPressed: onEditOptions,
                   icon: const Icon(Icons.edit_outlined, size: 15),
-                  label: const Text('Modifica allenamenti'),
+                  label: Text(tr('Modifica allenamenti', 'Edit workouts')),
                   style: TextButton.styleFrom(
                     foregroundColor: AppColors.textMuted,
                     minimumSize: const Size(0, 32),
@@ -329,21 +343,22 @@ class _ActivityCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final day = fitbit.day;
-    String thousands(int n) => n.toString().replaceAllMapped(
-      RegExp(r'(\d)(?=(\d{3})+$)'),
-      (m) => '${m[1]}.',
-    );
     return DailySection(
       icon: Icons.watch_outlined,
       color: dailyBlue,
-      title: 'Attività misurata',
+      title: tr('Attività misurata', 'Measured activity'),
       status: StatusChip(
         done: day != null,
-        label: day == null ? 'Nessun dato' : 'Dall’orologio',
+        label: day == null
+            ? tr('Nessun dato', 'No data')
+            : tr('Dall’orologio', 'From the watch'),
       ),
       child: day == null
-          ? const Text(
-              'Per questo giorno non ci sono dati dell’orologio.',
+          ? Text(
+              tr(
+                'Per questo giorno non ci sono dati dell’orologio.',
+                'No watch data for this day.',
+              ),
               style: TextStyle(fontSize: 13, color: AppColors.textMuted),
             )
           : LayoutBuilder(
@@ -351,15 +366,30 @@ class _ActivityCard extends StatelessWidget {
                 final columns = box.maxWidth >= 620 ? 4 : 2;
                 final width = (box.maxWidth - (columns - 1) * 10) / columns;
                 final tiles = <(String, String, String, Color)>[
-                  ('Passi', thousands(day.steps), '', AppColors.green),
                   (
-                    'Distanza',
-                    day.distanceKm.toStringAsFixed(1).replaceAll('.', ','),
+                    tr('Passi', 'Steps'),
+                    thousands(day.steps),
+                    '',
+                    AppColors.green,
+                  ),
+                  (
+                    tr('Distanza', 'Distance'),
+                    decimal(day.distanceKm.toStringAsFixed(1)),
                     'km',
                     dailyBlue,
                   ),
-                  ('Calorie', thousands(day.calories), 'kcal', macOrange),
-                  ('Minuti attivi', '${day.activeMinutes}', 'min', dailyPurple),
+                  (
+                    tr('Calorie', 'Calories'),
+                    thousands(day.calories),
+                    'kcal',
+                    macOrange,
+                  ),
+                  (
+                    tr('Minuti attivi', 'Active minutes'),
+                    '${day.activeMinutes}',
+                    'min',
+                    dailyPurple,
+                  ),
                 ];
                 return Wrap(
                   spacing: 10,
@@ -457,10 +487,8 @@ class _BodyCardState extends State<_BodyCard> {
   /// Mesi mostrati nel grafico; 0 = tutto lo storico.
   int _months = 12;
 
-  static String number(double v) => v
-      .toStringAsFixed(1)
-      .replaceAll(RegExp(r'\.0$'), '')
-      .replaceAll('.', ',');
+  static String number(double v) =>
+      decimal(v.toStringAsFixed(1).replaceAll(RegExp(r'\.0$'), ''));
   static String shortDate(DateTime d) =>
       '${d.day.toString().padLeft(2, '0')}/${d.month.toString().padLeft(2, '0')}/${(d.year % 100).toString().padLeft(2, '0')}';
 
@@ -506,17 +534,20 @@ class _BodyCardState extends State<_BodyCard> {
     return DailySection(
       icon: Icons.monitor_weight_outlined,
       color: AppColors.green,
-      title: 'Peso e misure',
+      title: sectionLabel('Peso e misure'),
       status: StatusChip(
         done: last != null,
         label: last == null
-            ? 'Nessuna misura'
-            : 'Ultima il ${shortDate(last.date)}',
+            ? tr('Nessuna misura', 'No measurements')
+            : tr(
+                'Ultima il ${shortDate(last.date)}',
+                'Latest on ${shortDate(last.date)}',
+              ),
       ),
       action: FilledButton.icon(
         onPressed: _edit,
         icon: const Icon(Icons.add, size: 16),
-        label: const Text('Nuova misura'),
+        label: Text(tr('Nuova misura', 'New measurement')),
         style: FilledButton.styleFrom(
           minimumSize: const Size(0, 30),
           padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -528,8 +559,11 @@ class _BodyCardState extends State<_BodyCard> {
               child: Center(child: CircularProgressIndicator(strokeWidth: 2.5)),
             )
           : all.isEmpty
-          ? const Text(
-              'Nessuna misura ancora. Premi “Nuova misura”: basta anche solo il peso.',
+          ? Text(
+              tr(
+                'Nessuna misura ancora. Premi “Nuova misura”: basta anche solo il peso.',
+                'No measurements yet. Press “New measurement”: the weight alone is enough.',
+              ),
               style: TextStyle(fontSize: 13, color: AppColors.textMuted),
             )
           : Column(
@@ -542,8 +576,7 @@ class _BodyCardState extends State<_BodyCard> {
                         : box.maxWidth >= 520
                         ? 3
                         : 2;
-                    final width =
-                        (box.maxWidth - (columns - 1) * 10) / columns;
+                    final width = (box.maxWidth - (columns - 1) * 10) / columns;
                     return Wrap(
                       spacing: 10,
                       runSpacing: 10,
@@ -572,10 +605,16 @@ class _BodyCardState extends State<_BodyCard> {
                                     footer: Text(
                                       delta == null
                                           ? (value == null
-                                                ? 'mai misurato'
-                                                : 'prima misura')
+                                                ? tr(
+                                                    'mai misurato',
+                                                    'never measured',
+                                                  )
+                                                : tr(
+                                                    'prima misura',
+                                                    'first measurement',
+                                                  ))
                                           : delta.abs() < .05
-                                          ? 'invariato'
+                                          ? tr('invariato', 'unchanged')
                                           : '${delta > 0 ? '▲ +' : '▼ −'}${number(delta.abs())} ${metric.unit}',
                                       style: const TextStyle(
                                         fontSize: 11.5,
@@ -598,7 +637,10 @@ class _BodyCardState extends State<_BodyCard> {
                   crossAxisAlignment: WrapCrossAlignment.center,
                   children: [
                     Text(
-                      '${_metric.label} nel tempo',
+                      tr(
+                        '${_metric.label} nel tempo',
+                        '${_metric.label} over time',
+                      ),
                       style: const TextStyle(
                         fontSize: 13.5,
                         fontWeight: FontWeight.w600,
@@ -609,28 +651,34 @@ class _BodyCardState extends State<_BodyCard> {
                       values: const [3, 12, 0],
                       selected: _months,
                       labelFor: (m) => m == 0
-                          ? 'Tutto'
+                          ? tr('Tutto', 'All')
                           : m == 12
-                          ? '1 anno'
-                          : '$m mesi',
+                          ? tr('1 anno', '1 year')
+                          : tr('$m mesi', '$m months'),
                       onSelected: (m) => setState(() => _months = m),
                     ),
                     if (series.length >= 2)
                       MacChip(
-                        '${series.last.$2 - series.first.$2 > 0 ? '▲ +' : '▼ −'}${number((series.last.$2 - series.first.$2).abs())} ${_metric.unit} nel periodo',
+                        tr(
+                          '${series.last.$2 - series.first.$2 > 0 ? '▲ +' : '▼ −'}${number((series.last.$2 - series.first.$2).abs())} ${_metric.unit} nel periodo',
+                          '${series.last.$2 - series.first.$2 > 0 ? '▲ +' : '▼ −'}${number((series.last.$2 - series.first.$2).abs())} ${_metric.unit} in the period',
+                        ),
                       ),
                   ],
                 ),
                 const SizedBox(height: 6),
                 TrendChart(points: series, unit: _metric.unit),
                 if (series.length == 1)
-                  const Text(
-                    'C’è una sola misura: alla prossima vedrai la linea.',
+                  Text(
+                    tr(
+                      'C’è una sola misura: alla prossima vedrai la linea.',
+                      'There’s only one measurement: with the next one you’ll see the line.',
+                    ),
                     style: TextStyle(fontSize: 12, color: AppColors.textMuted),
                   ),
                 const SizedBox(height: 14),
-                const Text(
-                  'Ultime misure',
+                Text(
+                  tr('Ultime misure', 'Latest measurements'),
                   style: TextStyle(
                     fontSize: 12.5,
                     fontWeight: FontWeight.w600,
@@ -667,7 +715,10 @@ class _BodyCardState extends State<_BodyCard> {
                       ),
                       IconButton(
                         onPressed: () => _edit(m),
-                        tooltip: 'Modifica questa misura',
+                        tooltip: tr(
+                          'Modifica questa misura',
+                          'Edit this measurement',
+                        ),
                         visualDensity: VisualDensity.compact,
                         icon: const Icon(
                           Icons.edit_outlined,
@@ -744,7 +795,12 @@ class _OptionsDialogState extends State<_OptionsDialog> {
   Widget build(BuildContext context) {
     final names = _rows.map((r) => r.$2.text.trim().toLowerCase()).toSet();
     return AlertDialog(
-      title: Text('Allenamenti di ${widget.routine.name}'),
+      title: Text(
+        tr(
+          'Allenamenti di ${widget.routine.name}',
+          '${widget.routine.name} workouts',
+        ),
+      ),
       content: SizedBox(
         width: 400,
         child: SingleChildScrollView(
@@ -752,8 +808,11 @@ class _OptionsDialogState extends State<_OptionsDialog> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const Text(
-                'Rinomina, togli o aggiungi. Vale da oggi in poi: i giorni passati tengono i nomi di allora.',
+              Text(
+                tr(
+                  'Rinomina, togli o aggiungi. Vale da oggi in poi: i giorni passati tengono i nomi di allora.',
+                  'Rename, remove or add. It applies from today on: past days keep their old names.',
+                ),
                 style: TextStyle(fontSize: 12.5, color: AppColors.textMuted),
               ),
               const SizedBox(height: 10),
@@ -767,9 +826,9 @@ class _OptionsDialogState extends State<_OptionsDialog> {
                           controller: row.$2,
                           maxLength: 60,
                           onChanged: (_) => setState(() {}),
-                          decoration: _decoration('Nome').copyWith(
-                            counterText: '',
-                          ),
+                          decoration: _decoration(
+                            tr('Nome', 'Name'),
+                          ).copyWith(counterText: ''),
                         ),
                       ),
                       IconButton(
@@ -777,7 +836,7 @@ class _OptionsDialogState extends State<_OptionsDialog> {
                           _rows.remove(row);
                           row.$2.dispose();
                         }),
-                        tooltip: 'Togli',
+                        tooltip: tr('Togli', 'Remove'),
                         icon: const Icon(
                           Icons.remove_circle_outline,
                           size: 20,
@@ -795,13 +854,13 @@ class _OptionsDialogState extends State<_OptionsDialog> {
                       maxLength: 60,
                       onSubmitted: (_) => _add(),
                       decoration: _decoration(
-                        'Nuovo allenamento…',
+                        tr('Nuovo allenamento…', 'New workout…'),
                       ).copyWith(counterText: ''),
                     ),
                   ),
                   IconButton(
                     onPressed: _add,
-                    tooltip: 'Aggiungi',
+                    tooltip: tr('Aggiungi', 'Add'),
                     icon: const Icon(Icons.add_circle, color: AppColors.green),
                   ),
                 ],
@@ -811,12 +870,12 @@ class _OptionsDialogState extends State<_OptionsDialog> {
                 spacing: 6,
                 runSpacing: 6,
                 children: [
-                  for (final idea in const [
-                    'Forza',
+                  for (final idea in [
+                    tr('Forza', 'Strength'),
                     'Cardio',
-                    'Corsa',
+                    tr('Corsa', 'Running'),
                     'Yoga',
-                    'Nuoto',
+                    tr('Nuoto', 'Swimming'),
                   ])
                     if (!names.contains(idea.toLowerCase()))
                       ActionChip(
@@ -833,7 +892,7 @@ class _OptionsDialogState extends State<_OptionsDialog> {
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text('Annulla'),
+          child: Text(tr('Annulla', 'Cancel')),
         ),
         FilledButton(
           onPressed: () => Navigator.pop(context, [
@@ -846,7 +905,7 @@ class _OptionsDialogState extends State<_OptionsDialog> {
                   score: _rows[i].$1.score,
                 ),
           ]),
-          child: const Text('Salva'),
+          child: Text(tr('Salva', 'Save')),
         ),
       ],
     );
@@ -887,7 +946,7 @@ class _MeasurementDialogState extends State<_MeasurementDialog> {
       final v = m?[metric];
       _fields[metric]!.text = v == null
           ? ''
-          : v.toStringAsFixed(1).replaceAll(RegExp(r'\.0$'), '').replaceAll('.', ',');
+          : decimal(v.toStringAsFixed(1).replaceAll(RegExp(r'\.0$'), ''));
     }
   }
 
@@ -906,13 +965,23 @@ class _MeasurementDialogState extends State<_MeasurementDialog> {
       if (raw.isEmpty) continue;
       final value = double.tryParse(raw);
       if (value == null || value <= 0 || value > 999) {
-        setState(() => _error = '${metric.label}: scrivi un numero, per esempio 78,5.');
+        setState(
+          () => _error = tr(
+            '${metric.label}: scrivi un numero, per esempio 78,5.',
+            '${metric.label}: write a number, for example 78.5.',
+          ),
+        );
         return;
       }
       values[metric] = value;
     }
     if (values.isEmpty) {
-      setState(() => _error = 'Scrivi almeno un valore: basta il peso.');
+      setState(
+        () => _error = tr(
+          'Scrivi almeno un valore: basta il peso.',
+          'Write at least one value: the weight is enough.',
+        ),
+      );
       return;
     }
     Navigator.pop(context, BodyMeasurement(date: _date, values: values));
@@ -920,7 +989,7 @@ class _MeasurementDialogState extends State<_MeasurementDialog> {
 
   @override
   Widget build(BuildContext context) => AlertDialog(
-    title: const Text('Misura del corpo'),
+    title: Text(tr('Misura del corpo', 'Body measurement')),
     content: SizedBox(
       width: 380,
       child: SingleChildScrollView(
@@ -953,8 +1022,11 @@ class _MeasurementDialogState extends State<_MeasurementDialog> {
                 ),
               ),
             ),
-            const Text(
-              'Compila solo quello che hai misurato.',
+            Text(
+              tr(
+                'Compila solo quello che hai misurato.',
+                'Fill in only what you measured.',
+              ),
               style: TextStyle(fontSize: 12.5, color: AppColors.textMuted),
             ),
             const SizedBox(height: 10),
@@ -1016,9 +1088,9 @@ class _MeasurementDialogState extends State<_MeasurementDialog> {
     actions: [
       TextButton(
         onPressed: () => Navigator.pop(context),
-        child: const Text('Annulla'),
+        child: Text(tr('Annulla', 'Cancel')),
       ),
-      FilledButton(onPressed: _save, child: const Text('Salva')),
+      FilledButton(onPressed: _save, child: Text(tr('Salva', 'Save'))),
     ],
   );
 }

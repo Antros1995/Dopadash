@@ -7,6 +7,7 @@ import '../../../../core/utils/external_url_launcher.dart';
 import '../../../calendar/application/calendar_controller.dart';
 import '../../../calendar/data/calendar_repository.dart';
 import '../../../calendar/domain/calendar_event.dart';
+import '../../../../core/i18n/i18n.dart';
 
 class DashboardCalendarCard extends StatefulWidget {
   const DashboardCalendarCard({required this.controller, super.key});
@@ -37,15 +38,15 @@ class DashboardCalendarCardState extends State<DashboardCalendarCard> {
         children: [
           HomeHeading(
             title: DateUtils.isSameDay(controller.selectedDate, DateTime.now())
-                ? 'Calendario di oggi'
-                : 'Calendario del giorno',
+                ? tr('Calendario di oggi', 'Today’s calendar')
+                : tr('Calendario del giorno', 'Day’s calendar'),
             icon: Icons.calendar_month,
             color: const Color(0xFF249FFE),
             action: IconButton(
               onPressed: controller.isConfigured && !controller.isLoading
                   ? controller.load
                   : null,
-              tooltip: 'Aggiorna calendario',
+              tooltip: tr('Aggiorna calendario', 'Refresh calendar'),
               icon: const Icon(Icons.refresh_rounded, size: 20),
             ),
           ),
@@ -58,9 +59,9 @@ class DashboardCalendarCardState extends State<DashboardCalendarCard> {
 
   Widget _calendarBody(CalendarController controller) {
     if (!controller.isConfigured) {
-      return const _CalendarMessage(
+      return _CalendarMessage(
         icon: Icons.link_off_rounded,
-        text: 'Calendario non collegato.',
+        text: tr('Calendario non collegato.', 'Calendar not connected.'),
       );
     }
     if (controller.isLoading) {
@@ -79,7 +80,11 @@ class DashboardCalendarCardState extends State<DashboardCalendarCard> {
                 onPressed: _isConnecting
                     ? null
                     : () => _connectOutlook(controller),
-                child: Text(_isConnecting ? 'Apertura…' : 'Collega Outlook'),
+                child: Text(
+                  _isConnecting
+                      ? tr('Apertura…', 'Opening…')
+                      : tr('Collega Outlook', 'Connect Outlook'),
+                ),
               )
             : canReconnect
             ? Row(
@@ -87,29 +92,34 @@ class DashboardCalendarCardState extends State<DashboardCalendarCard> {
                 children: [
                   TextButton(
                     onPressed: controller.load,
-                    child: const Text('Riprova'),
+                    child: Text(tr('Riprova', 'Try again')),
                   ),
                   TextButton(
                     onPressed: _isConnecting
                         ? null
                         : () => _connectOutlook(controller),
                     child: Text(
-                      _isConnecting ? 'Apertura...' : 'Ricollega Outlook',
+                      _isConnecting
+                          ? tr('Apertura...', 'Opening...')
+                          : tr('Ricollega Outlook', 'Reconnect Outlook'),
                     ),
                   ),
                 ],
               )
             : TextButton(
                 onPressed: controller.load,
-                child: const Text('Riprova'),
+                child: Text(tr('Riprova', 'Try again')),
               ),
       );
     }
     final events = controller.events;
     if (events.isEmpty) {
-      return const _CalendarMessage(
+      return _CalendarMessage(
         icon: Icons.event_available_rounded,
-        text: 'Nessun evento Outlook per questo giorno.',
+        text: tr(
+          'Nessun evento Outlook per questo giorno.',
+          'No Outlook events on this day.',
+        ),
       );
     }
     return ScrollbarTheme(
@@ -140,7 +150,14 @@ class DashboardCalendarCardState extends State<DashboardCalendarCard> {
       final launched = await launchExternalUrl(authorizationUrl);
       if (!launched && mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Impossibile aprire il browser.')),
+          SnackBar(
+            content: Text(
+              tr(
+                'Impossibile aprire il browser.',
+                'Couldn’t open the browser.',
+              ),
+            ),
+          ),
         );
         return;
       }
@@ -155,7 +172,14 @@ class DashboardCalendarCardState extends State<DashboardCalendarCard> {
         if (!mounted) return;
         if (controller.failure == null) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Outlook collegato e aggiornato.')),
+            SnackBar(
+              content: Text(
+                tr(
+                  'Outlook collegato e aggiornato.',
+                  'Outlook connected and refreshed.',
+                ),
+              ),
+            ),
           );
           return;
         }
@@ -167,7 +191,14 @@ class DashboardCalendarCardState extends State<DashboardCalendarCard> {
     } on CalendarFailure {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Connessione Outlook non disponibile.')),
+          SnackBar(
+            content: Text(
+              tr(
+                'Connessione Outlook non disponibile.',
+                'Outlook connection unavailable.',
+              ),
+            ),
+          ),
         );
       }
     } finally {
@@ -283,15 +314,25 @@ class _CalendarMessage extends StatelessWidget {
 
 String _calendarFailureMessage(CalendarFailureKind kind) {
   return switch (kind) {
-    CalendarFailureKind.outlookNotConnected =>
+    CalendarFailureKind.outlookNotConnected => tr(
       'Outlook non è ancora collegato.',
-    CalendarFailureKind.sessionExpired =>
+      'Outlook isn’t connected yet.',
+    ),
+    CalendarFailureKind.sessionExpired => tr(
       'Sessione scaduta. Esci e accedi nuovamente.',
-    CalendarFailureKind.notAllowed =>
+      'Session expired. Sign out and sign in again.',
+    ),
+    CalendarFailureKind.notAllowed => tr(
       'Questo account non è autorizzato per il calendario personale.',
-    CalendarFailureKind.invalidResponse =>
+      'This account isn’t allowed to use the personal calendar.',
+    ),
+    CalendarFailureKind.invalidResponse => tr(
       'Il calendario ha restituito dati non validi.',
-    CalendarFailureKind.unavailable =>
+      'The calendar returned invalid data.',
+    ),
+    CalendarFailureKind.unavailable => tr(
       'La mailbox Outlook collegata non \u00e8 disponibile.',
+      'The connected Outlook mailbox is unavailable.',
+    ),
   };
 }

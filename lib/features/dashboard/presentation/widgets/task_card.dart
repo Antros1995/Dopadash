@@ -6,6 +6,7 @@ import '../../../../core/presentation/mac_widgets.dart';
 import '../../../../core/utils/date_formatters.dart';
 import '../../../tasks/application/task_controller.dart';
 import '../../../tasks/domain/dashboard_task.dart';
+import '../../../../core/i18n/i18n.dart';
 
 class DashboardTaskCard extends StatefulWidget {
   const DashboardTaskCard({
@@ -48,17 +49,22 @@ class _DashboardTaskCardState extends State<DashboardTaskCard> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Eliminare l’attività?'),
-        content: Text('“${task.title}” verrà eliminata definitivamente.'),
+        title: Text(tr('Eliminare l’attività?', 'Delete the task?')),
+        content: Text(
+          tr(
+            '“${task.title}” verrà eliminata definitivamente.',
+            '“${task.title}” will be deleted permanently.',
+          ),
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Annulla'),
+            child: Text(tr('Annulla', 'Cancel')),
           ),
           FilledButton(
             onPressed: () => Navigator.of(context).pop(true),
             style: FilledButton.styleFrom(backgroundColor: AppColors.danger),
-            child: const Text('Elimina'),
+            child: Text(tr('Elimina', 'Delete')),
           ),
         ],
       ),
@@ -87,9 +93,9 @@ class _DashboardTaskCardState extends State<DashboardTaskCard> {
       initialDate: _newTaskDueDate ?? widget.controller.selectedDate,
       firstDate: DateTime(2020),
       lastDate: DateTime(2100),
-      helpText: 'Scegli la data prevista',
-      confirmText: 'Conferma',
-      cancelText: 'Annulla',
+      helpText: tr('Scegli la data prevista', 'Choose the due date'),
+      confirmText: tr('Conferma', 'Confirm'),
+      cancelText: tr('Annulla', 'Cancel'),
     );
     if (selected != null && mounted) {
       setState(() => _newTaskDueDate = taskDateOnly(selected));
@@ -105,8 +111,10 @@ class _DashboardTaskCardState extends State<DashboardTaskCard> {
         children: [
           SectionHeading(
             title: widget.title,
-            subtitle:
-                'Le attività non concluse passano automaticamente al giorno successivo.',
+            subtitle: tr(
+              'Le attività non concluse passano automaticamente al giorno successivo.',
+              'Unfinished tasks move to the next day automatically.',
+            ),
             trailing: Icon(widget.icon, color: AppColors.green),
           ),
           const SizedBox(height: AppSpacing.sm),
@@ -124,12 +132,15 @@ class _DashboardTaskCardState extends State<DashboardTaskCard> {
             child: widget.controller.isLoading
                 ? const Center(child: CircularProgressIndicator())
                 : tasks.isEmpty
-                ? const Align(
+                ? Align(
                     alignment: Alignment.topLeft,
                     child: Padding(
                       padding: EdgeInsets.only(top: AppSpacing.xs),
                       child: Text(
-                        'Nessuna attività per questa giornata.',
+                        tr(
+                          'Nessuna attività per questa giornata.',
+                          'No tasks for this day.',
+                        ),
                         style: TextStyle(color: AppColors.textMuted),
                       ),
                     ),
@@ -163,8 +174,11 @@ class _DashboardTaskCardState extends State<DashboardTaskCard> {
           ),
           if (widget.controller.error != null) ...[
             const SizedBox(height: AppSpacing.xs),
-            const Text(
-              'Salvataggio non riuscito. Riprova dopo aver controllato il browser.',
+            Text(
+              tr(
+                'Salvataggio non riuscito. Riprova dopo aver controllato il browser.',
+                'Save failed. Check the browser and try again.',
+              ),
               style: TextStyle(fontSize: 11, color: AppColors.danger),
             ),
           ],
@@ -200,17 +214,22 @@ class _DashboardTaskOverviewCardState extends State<DashboardTaskOverviewCard> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Eliminare l’attività?'),
-        content: Text('“${task.title}” verrà eliminata definitivamente.'),
+        title: Text(tr('Eliminare l’attività?', 'Delete the task?')),
+        content: Text(
+          tr(
+            '“${task.title}” verrà eliminata definitivamente.',
+            '“${task.title}” will be deleted permanently.',
+          ),
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Annulla'),
+            child: Text(tr('Annulla', 'Cancel')),
           ),
           FilledButton(
             onPressed: () => Navigator.of(context).pop(true),
             style: FilledButton.styleFrom(backgroundColor: AppColors.danger),
-            child: const Text('Elimina'),
+            child: Text(tr('Elimina', 'Delete')),
           ),
         ],
       ),
@@ -227,18 +246,21 @@ class _DashboardTaskOverviewCardState extends State<DashboardTaskOverviewCard> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const SectionHeading(
-            title: 'Tutte le attività',
-            subtitle: 'Panoramica completa, ordinata per data prevista.',
+          SectionHeading(
+            title: tr('Tutte le attività', 'All tasks'),
+            subtitle: tr(
+              'Panoramica completa, ordinata per data prevista.',
+              'Full overview, sorted by due date.',
+            ),
             trailing: Icon(Icons.view_list_outlined, color: AppColors.green),
           ),
           const SizedBox(height: AppSpacing.sm),
           Expanded(
             child: tasks.isEmpty
-                ? const Align(
+                ? Align(
                     alignment: Alignment.topLeft,
                     child: Text(
-                      'Nessuna attività presente.',
+                      tr('Nessuna attività presente.', 'No tasks yet.'),
                       style: TextStyle(color: AppColors.textMuted),
                     ),
                   )
@@ -254,8 +276,8 @@ class _DashboardTaskOverviewCardState extends State<DashboardTaskOverviewCard> {
                       padding: const EdgeInsets.only(right: 12),
                       children: [
                         if (activeTasks.isNotEmpty) ...[
-                          const _TaskOverviewSectionHeading(
-                            title: 'Attività da completare',
+                          _TaskOverviewSectionHeading(
+                            title: tr('Attività da completare', 'Tasks to do'),
                             icon: Icons.radio_button_unchecked_rounded,
                           ),
                           const SizedBox(height: 7),
@@ -278,8 +300,8 @@ class _DashboardTaskOverviewCardState extends State<DashboardTaskOverviewCard> {
                         if (completedTasks.isNotEmpty) ...[
                           if (activeTasks.isNotEmpty)
                             const SizedBox(height: AppSpacing.sm),
-                          const _TaskOverviewSectionHeading(
-                            title: 'Attività completate',
+                          _TaskOverviewSectionHeading(
+                            title: tr('Attività completate', 'Completed tasks'),
                             icon: Icons.check_circle_outline_rounded,
                           ),
                           const SizedBox(height: 7),
@@ -368,8 +390,11 @@ class _TaskComposer extends StatelessWidget {
                 maxLength: 160,
                 textInputAction: TextInputAction.done,
                 onSubmitted: (_) => onSubmitted(),
-                decoration: const InputDecoration(
-                  hintText: 'Scrivi una nuova attività…',
+                decoration: InputDecoration(
+                  hintText: tr(
+                    'Scrivi una nuova attività…',
+                    'Write a new task…',
+                  ),
                   counterText: '',
                   contentPadding: EdgeInsets.symmetric(
                     horizontal: 13,
@@ -382,7 +407,7 @@ class _TaskComposer extends StatelessWidget {
           const SizedBox(width: AppSpacing.xs),
           IconButton.filled(
             onPressed: onSubmitted,
-            tooltip: 'Aggiungi attività',
+            tooltip: tr('Aggiungi attività', 'Add task'),
             icon: const Icon(Icons.add_rounded),
           ),
         ],
@@ -393,7 +418,12 @@ class _TaskComposer extends StatelessWidget {
         child: TextButton.icon(
           onPressed: onDueDateSelected,
           icon: const Icon(Icons.event_outlined, size: 16),
-          label: Text('Da fare il ${formatShortDate(dueDate)}'),
+          label: Text(
+            tr(
+              'Da fare il ${formatShortDate(dueDate)}',
+              'Due ${formatShortDate(dueDate)}',
+            ),
+          ),
         ),
       ),
     ],
@@ -427,9 +457,9 @@ class _TaskRow extends StatelessWidget {
       initialDate: task.scheduledDate,
       firstDate: DateTime(2020),
       lastDate: DateTime(2100),
-      helpText: 'Modifica la data dell’attività',
-      confirmText: 'Salva data',
-      cancelText: 'Annulla',
+      helpText: tr('Modifica la data dell’attività', 'Change the task date'),
+      confirmText: tr('Salva data', 'Save date'),
+      cancelText: tr('Annulla', 'Cancel'),
     );
     if (selected != null) await onReschedule(selected);
   }
@@ -502,7 +532,7 @@ class _TaskRow extends StatelessWidget {
             if (onDelete != null)
               IconButton(
                 onPressed: onDelete,
-                tooltip: 'Elimina attività',
+                tooltip: tr('Elimina attività', 'Delete task'),
                 visualDensity: VisualDensity.compact,
                 icon: const Icon(
                   Icons.delete_outline_rounded,
@@ -558,7 +588,7 @@ class _TaskDateButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final foreground = overdue ? AppColors.warning : AppColors.textMuted;
     return Tooltip(
-      message: 'Modifica data attività',
+      message: tr('Modifica data attività', 'Change task date'),
       child: Material(
         color: Colors.transparent,
         child: InkWell(
@@ -582,7 +612,10 @@ class _TaskDateButton extends StatelessWidget {
                 Text(
                   compact
                       ? formatShortDate(date)
-                      : 'Entro ${formatShortDate(date)}',
+                      : tr(
+                          'Entro ${formatShortDate(date)}',
+                          'By ${formatShortDate(date)}',
+                        ),
                   style: TextStyle(
                     fontSize: 10,
                     fontWeight: FontWeight.w700,
@@ -599,10 +632,10 @@ class _TaskDateButton extends StatelessWidget {
 }
 
 String taskGroupLabel(DashboardTaskGroup group) => switch (group) {
-  DashboardTaskGroup.personal => 'Personali',
-  DashboardTaskGroup.work => 'Lavoro',
-  DashboardTaskGroup.personalWork => 'Lavoro personale',
-  DashboardTaskGroup.posta => 'Posta',
+  DashboardTaskGroup.personal => tr('Personali', 'Personal'),
+  DashboardTaskGroup.work => tr('Lavoro', 'Work'),
+  DashboardTaskGroup.personalWork => tr('Lavoro personale', 'Side project'),
+  DashboardTaskGroup.posta => tr('Posta', 'Mail'),
 };
 
 class _TaskColorMenu extends StatelessWidget {
@@ -618,7 +651,7 @@ class _TaskColorMenu extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => PopupMenuButton<DashboardTaskColor>(
-    tooltip: 'Colore attività',
+    tooltip: tr('Colore attività', 'Task colour'),
     onSelected: onChanged,
     itemBuilder: (context) => [
       for (final option in DashboardTaskColor.values)
@@ -667,9 +700,9 @@ Color taskColorValue(DashboardTaskColor color) => switch (color) {
 };
 
 String taskColorLabel(DashboardTaskColor color) => switch (color) {
-  DashboardTaskColor.black => 'Nero',
-  DashboardTaskColor.red => 'Rosso',
-  DashboardTaskColor.blue => 'Blu',
-  DashboardTaskColor.green => 'Verde',
-  DashboardTaskColor.yellow => 'Giallo',
+  DashboardTaskColor.black => tr('Nero', 'Black'),
+  DashboardTaskColor.red => tr('Rosso', 'Red'),
+  DashboardTaskColor.blue => tr('Blu', 'Blue'),
+  DashboardTaskColor.green => tr('Verde', 'Green'),
+  DashboardTaskColor.yellow => tr('Giallo', 'Yellow'),
 };

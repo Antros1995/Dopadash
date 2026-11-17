@@ -8,6 +8,7 @@ import '../../../fitbit/application/fitbit_controller.dart';
 import '../../../fitbit/domain/fitbit_day.dart';
 import '../health_presentation.dart';
 import 'home_components.dart';
+import '../../../../core/i18n/i18n.dart';
 
 const _purple = Color(0xFF7956EF);
 const _blue = Color(0xFF28A4EB);
@@ -30,8 +31,13 @@ class HealthOverview extends StatelessWidget {
     } on Object {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Collegamento Fitbit non disponibile. Riprova.'),
+          SnackBar(
+            content: Text(
+              tr(
+                'Collegamento Fitbit non disponibile. Riprova.',
+                'Fitbit connection unavailable. Try again.',
+              ),
+            ),
           ),
         );
       }
@@ -45,19 +51,25 @@ class HealthOverview extends StatelessWidget {
     final result = await showDialog<String>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Minuti di mindfulness'),
+        title: Text(tr('Minuti di mindfulness', 'Mindfulness minutes')),
         content: TextField(
           controller: text,
           keyboardType: TextInputType.number,
-          decoration: const InputDecoration(
-            labelText: 'Inserimento manuale · minuti',
-            helperText: 'Lascia vuoto per rimuovere il dato.',
+          decoration: InputDecoration(
+            labelText: tr(
+              'Inserimento manuale · minuti',
+              'Manual entry · minutes',
+            ),
+            helperText: tr(
+              'Lascia vuoto per rimuovere il dato.',
+              'Leave empty to remove the value.',
+            ),
           ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Annulla'),
+            child: Text(tr('Annulla', 'Cancel')),
           ),
           FilledButton(
             onPressed: () {
@@ -68,7 +80,7 @@ class HealthOverview extends StatelessWidget {
                 Navigator.pop(context, raw);
               }
             },
-            child: const Text('Salva'),
+            child: Text(tr('Salva', 'Save')),
           ),
         ],
       ),
@@ -84,7 +96,14 @@ class HealthOverview extends StatelessWidget {
       } on Object {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Minuti non salvati. Riprova.')),
+            SnackBar(
+              content: Text(
+                tr(
+                  'Minuti non salvati. Riprova.',
+                  'Minutes not saved. Try again.',
+                ),
+              ),
+            ),
           );
         }
       }
@@ -101,10 +120,10 @@ class HealthOverview extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             HomeHeading(
-              title: 'Salute',
+              title: tr('Salute', 'Health'),
               icon: Icons.favorite_outline,
               action: IconButton(
-                tooltip: 'Aggiorna dati salute',
+                tooltip: tr('Aggiorna dati salute', 'Refresh health data'),
                 onPressed: controller.isLoading ? null : controller.load,
                 icon: const Icon(Icons.refresh, size: 19),
               ),
@@ -113,16 +132,28 @@ class HealthOverview extends StatelessWidget {
             if (controller.isLoading)
               const LinearProgressIndicator()
             else if (controller.failure != null)
-              const Text(
-                'Non è stato possibile caricare i dati salute. Riprova con Aggiorna.',
+              Text(
+                tr(
+                  'Non è stato possibile caricare i dati salute. Riprova con Aggiorna.',
+                  'Couldn’t load health data. Try again with Refresh.',
+                ),
               )
             else
               Text(
                 !controller.isConfigured
-                    ? 'Integrazione salute non configurata.'
+                    ? tr(
+                        'Integrazione salute non configurata.',
+                        'Health integration not set up.',
+                      )
                     : controller.isConnected
-                    ? 'Nessun dato salute disponibile per questa giornata.'
-                    : 'Collega Fitbit per visualizzare i tuoi dati salute.',
+                    ? tr(
+                        'Nessun dato salute disponibile per questa giornata.',
+                        'No health data for this day.',
+                      )
+                    : tr(
+                        'Collega Fitbit per visualizzare i tuoi dati salute.',
+                        'Connect Fitbit to see your health data.',
+                      ),
               ),
             if (controller.isConfigured &&
                 !controller.isConnected &&
@@ -131,7 +162,7 @@ class HealthOverview extends StatelessWidget {
               TextButton.icon(
                 onPressed: () => _connect(context),
                 icon: const Icon(Icons.link),
-                label: const Text('Collega Fitbit'),
+                label: Text(tr('Collega Fitbit', 'Connect Fitbit')),
               ),
           ],
         ),
@@ -155,10 +186,13 @@ class HealthOverview extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         if (controller.failure != null)
-          const Padding(
+          Padding(
             padding: EdgeInsets.only(bottom: 8),
             child: Text(
-              'Aggiornamento non riuscito: sono mostrati gli ultimi dati ricevuti.',
+              tr(
+                'Aggiornamento non riuscito: sono mostrati gli ultimi dati ricevuti.',
+                'Update failed: showing the latest data received.',
+              ),
               style: TextStyle(fontSize: 12, color: AppColors.warning),
             ),
           ),
@@ -239,11 +273,11 @@ class _SleepCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           HomeHeading(
-            title: 'Sonno',
+            title: tr('Sonno', 'Sleep'),
             icon: Icons.nights_stay_outlined,
             color: _purple,
             action: HomeLink(
-              label: 'Dettagli ›',
+              label: tr('Dettagli ›', 'Details ›'),
               onTap: () => _showHealthDetails(context, day),
             ),
           ),
@@ -255,11 +289,13 @@ class _SleepCard extends StatelessWidget {
               children: [
                 if (score != null) ...[
                   Tooltip(
-                    message:
-                        'Indice dell’app: durata rispetto a 8 ore (70%) + efficienza (30%). Non è lo Sleep Score Fitbit.',
+                    message: tr(
+                      'Indice dell’app: durata rispetto a 8 ore (70%) + efficienza (30%). Non è lo Sleep Score Fitbit.',
+                      'App index: duration against 8 hours (70%) + efficiency (30%). It isn’t the Fitbit Sleep Score.',
+                    ),
                     child: HomeRing(
                       value: score.toDouble(),
-                      label: 'Indice app',
+                      label: tr('Indice app', 'App index'),
                       color: _purple,
                       size: 88,
                     ),
@@ -274,22 +310,25 @@ class _SleepCard extends StatelessWidget {
                       if (HealthPresentation.positive(minutes))
                         _Fact(
                           value: durationLabel(minutes!),
-                          label: 'Tempo totale',
+                          label: tr('Tempo totale', 'Total time'),
                         ),
                       if (HealthPresentation.positive(day.sleepEfficiency) &&
                           day.sleepEfficiency! <= 100)
                         _Fact(
                           value: '${day.sleepEfficiency}%',
-                          label: 'Efficienza',
+                          label: tr('Efficienza', 'Efficiency'),
                         ),
                       if (HealthPresentation.positive(deep))
                         _Fact(
                           value: durationLabel(deep!),
-                          label: 'Sonno profondo',
+                          label: tr('Sonno profondo', 'Deep sleep'),
                         ),
                       if (!HealthPresentation.positive(minutes))
-                        const Text(
-                          'Nessuna durata registrata.',
+                        Text(
+                          tr(
+                            'Nessuna durata registrata.',
+                            'No duration recorded.',
+                          ),
                           style: TextStyle(fontSize: 12),
                         ),
                     ],
@@ -346,7 +385,10 @@ class _BodyCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const HomeHeading(title: 'Stato del corpo', icon: Icons.spa_outlined),
+          HomeHeading(
+            title: tr('Stato del corpo', 'Body status'),
+            icon: Icons.spa_outlined,
+          ),
           const SizedBox(height: 12),
           Expanded(
             child: Row(
@@ -354,7 +396,7 @@ class _BodyCard extends StatelessWidget {
                 if (recovery != null)
                   HomeRing(
                     value: recovery.toDouble(),
-                    label: 'Recupero',
+                    label: tr('Recupero', 'Recovery'),
                     color: AppColors.green,
                     size: 106,
                   )
@@ -376,8 +418,14 @@ class _BodyCard extends StatelessWidget {
                 Expanded(
                   child: Text(
                     recovery == null
-                        ? 'Dati parziali.\nIl recupero non è stimabile per questa giornata.'
-                        : 'Stima dell’app\nsu sonno e segnali cardiaci disponibili.',
+                        ? tr(
+                            'Dati parziali.\nIl recupero non è stimabile per questa giornata.',
+                            'Partial data.\nRecovery can’t be estimated for this day.',
+                          )
+                        : tr(
+                            'Stima dell’app\nsu sonno e segnali cardiaci disponibili.',
+                            'App estimate\nfrom available sleep and heart signals.',
+                          ),
                     style: const TextStyle(fontSize: 12, height: 1.5),
                   ),
                 ),
@@ -387,21 +435,21 @@ class _BodyCard extends StatelessWidget {
           const SizedBox(height: 10),
           if (model.sleepScore != null)
             _SignalBar(
-              label: 'Sonno',
+              label: tr('Sonno', 'Sleep'),
               value: model.sleepScore! / 100,
               text: '${model.sleepScore}',
               color: AppColors.green,
             ),
           if (recovery != null)
             _SignalBar(
-              label: 'Recupero',
+              label: tr('Recupero', 'Recovery'),
               value: recovery / 100,
               text: '$recovery',
               color: const Color(0xFF69CF79),
             ),
           if (model.load != null)
             _SignalBar(
-              label: 'Carico',
+              label: tr('Carico', 'Load'),
               value: model.load! / 21,
               text: '${model.load!.toStringAsFixed(1)}/21',
               color: const Color(0xFFFFBD23),
@@ -410,13 +458,16 @@ class _BodyCard extends StatelessWidget {
           Tooltip(
             message:
                 'Sono mantenute le formule preesistenti dell’app. Recupero: media pesata di sonno, HRV e FC a riposo; carico: trasformazione logaritmica dei minuti nelle zone. Non sono punteggi ufficiali Fitbit né valutazioni cliniche.',
-            child: const Row(
+            child: Row(
               children: [
                 Icon(Icons.info_outline, size: 12, color: AppColors.textMuted),
                 SizedBox(width: 5),
                 Flexible(
                   child: Text(
-                    'Indici app · metodo e limiti',
+                    tr(
+                      'Indici app · metodo e limiti',
+                      'App indices · method and limits',
+                    ),
                     style: TextStyle(fontSize: 10),
                   ),
                 ),
@@ -490,7 +541,9 @@ class _InsightCard extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         HomeHeading(
-          title: isToday ? 'Insight di oggi' : 'Insight del giorno',
+          title: isToday
+              ? tr('Insight di oggi', 'Today’s insights')
+              : tr('Insight del giorno', 'Day’s insights'),
           icon: Icons.auto_awesome_outlined,
           color: const Color(0xFF38B85D),
         ),
@@ -501,8 +554,11 @@ class _InsightCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 if (model.insights.isEmpty)
-                  const Text(
-                    'Dati insufficienti per formulare un insight.',
+                  Text(
+                    tr(
+                      'Dati insufficienti per formulare un insight.',
+                      'Not enough data for an insight.',
+                    ),
                     style: TextStyle(fontSize: 13, height: 1.6),
                   )
                 else
@@ -526,8 +582,14 @@ class _InsightCard extends StatelessWidget {
         const SizedBox(height: 9),
         Text(
           isToday
-              ? 'I campioni ricevuti non hanno date e possono includere oggi. Nessun confronto su finestre temporali presunte.'
-              : 'Giornata storica: nessun confronto con trend privi di data.',
+              ? tr(
+                  'I campioni ricevuti non hanno date e possono includere oggi. Nessun confronto su finestre temporali presunte.',
+                  'The samples received have no dates and may include today. No comparison over assumed time windows.',
+                )
+              : tr(
+                  'Giornata storica: nessun confronto con trend privi di data.',
+                  'Past day: no comparison with undated trends.',
+                ),
           style: const TextStyle(fontSize: 10, height: 1.4),
         ),
       ],
@@ -580,17 +642,20 @@ class _MetricStrip extends StatelessWidget {
     return [
       if (sample != null)
         _Metric(
-          'Ultimo battito',
+          tr('Ultimo battito', 'Latest heart rate'),
           '${sample.beatsPerMinute}',
           'bpm',
-          'Misurato alle ${_time(sample.measuredAt)}',
+          tr(
+            'Misurato alle ${_time(sample.measuredAt)}',
+            'Measured at ${_time(sample.measuredAt)}',
+          ),
           Icons.favorite_outline,
           _pink,
           const [],
         )
       else if (latestInterval != null)
         _Metric(
-          'FC media',
+          tr('FC media', 'Avg heart rate'),
           latestInterval.average.toStringAsFixed(0),
           'bpm',
           '${_time(latestInterval.startTime)}–'
@@ -601,10 +666,10 @@ class _MetricStrip extends StatelessWidget {
         ),
       if (valid(day.restingHeartRate))
         _Metric(
-          'FC a riposo',
+          tr('FC a riposo', 'Resting HR'),
           '${day.restingHeartRate}',
           'bpm',
-          'Giornaliera',
+          tr('Giornaliera', 'Daily'),
           Icons.favorite_outline,
           _pink,
           day.restingHeartRateTrend,
@@ -614,7 +679,7 @@ class _MetricStrip extends StatelessWidget {
           'HRV',
           day.heartRateVariabilityMs!.toStringAsFixed(0),
           'ms',
-          'Notturna',
+          tr('Notturna', 'Overnight'),
           Icons.monitor_heart_outlined,
           const Color(0xFF13BBD0),
           day.heartRateVariabilityTrend,
@@ -625,7 +690,7 @@ class _MetricStrip extends StatelessWidget {
           'SpO₂',
           day.oxygenSaturation!.average.toStringAsFixed(0),
           '%',
-          'Media notturna',
+          tr('Media notturna', 'Overnight average'),
           Icons.water_drop_outlined,
           _blue,
           day.oxygenSaturationTrend,
@@ -633,20 +698,20 @@ class _MetricStrip extends StatelessWidget {
         ),
       if (valid(day.respiratoryRate))
         _Metric(
-          'Respirazione',
+          tr('Respirazione', 'Breathing'),
           day.respiratoryRate!.toStringAsFixed(0),
           '/min',
-          'Media notturna',
+          tr('Media notturna', 'Overnight average'),
           Icons.air,
           const Color(0xFF439CC0),
           day.respiratoryRateTrend,
         ),
       if (day.steps > 0)
         _Metric(
-          'Passi',
+          tr('Passi', 'Steps'),
           _integer(day.steps),
           '',
-          'Registrati',
+          tr('Registrati', 'Recorded'),
           Icons.directions_walk,
           AppColors.green,
           day.stepsTrend,
@@ -654,10 +719,10 @@ class _MetricStrip extends StatelessWidget {
         ),
       if (valid(day.distanceKm))
         _Metric(
-          'Distanza',
+          tr('Distanza', 'Distance'),
           day.distanceKm.toStringAsFixed(1),
           'km',
-          'Percorsa',
+          tr('Percorsa', 'Covered'),
           Icons.route_outlined,
           const Color(0xFF29AE89),
           day.distanceTrend,
@@ -665,10 +730,10 @@ class _MetricStrip extends StatelessWidget {
         ),
       if (day.calories > 0)
         _Metric(
-          'Calorie',
+          tr('Calorie', 'Calories'),
           _integer(day.calories),
           'kcal',
-          'Totali',
+          tr('Totali', 'Total'),
           Icons.local_fire_department_outlined,
           const Color(0xFFFFA408),
           day.caloriesTrend,
@@ -676,10 +741,10 @@ class _MetricStrip extends StatelessWidget {
         ),
       if (valid(day.activeZoneMinutes))
         _Metric(
-          'Zone attive',
+          tr('Zone attive', 'Active zones'),
           '${day.activeZoneMinutes}',
           'min',
-          'Registrate',
+          tr('Registrate', 'Recorded'),
           Icons.bolt,
           _pink,
           day.activeZoneMinutesTrend,
@@ -687,10 +752,10 @@ class _MetricStrip extends StatelessWidget {
         )
       else if (day.activeMinutes > 0)
         _Metric(
-          'Attività',
+          tr('Attività', 'Activity'),
           '${day.activeMinutes}',
           'min',
-          'Minuti attivi',
+          tr('Minuti attivi', 'Active minutes'),
           Icons.bolt,
           _pink,
           day.activeMinutesTrend,
@@ -701,7 +766,7 @@ class _MetricStrip extends StatelessWidget {
           'Workout',
           '${day.workouts.length}',
           '',
-          'Nel giorno',
+          tr('Nel giorno', 'In the day'),
           Icons.fitness_center,
           _purple,
           const [],
@@ -718,10 +783,10 @@ class _MetricStrip extends StatelessWidget {
         ),
       if (valid(day.skinTemperature?.nightlyCelsius))
         _Metric(
-          'Temperatura',
+          tr('Temperatura', 'Temperature'),
           day.skinTemperature!.nightlyCelsius.toStringAsFixed(1),
           '°C',
-          'Cutanea notturna',
+          tr('Cutanea notturna', 'Overnight skin'),
           Icons.thermostat,
           const Color(0xFFDF9061),
           day.skinTemperatureTrend,
@@ -731,7 +796,7 @@ class _MetricStrip extends StatelessWidget {
           'Mindfulness',
           '${day.mindfulnessMinutes}',
           'min',
-          'Inserita a mano',
+          tr('Inserita a mano', 'Entered manually'),
           Icons.self_improvement,
           AppColors.green,
           const [],
@@ -748,13 +813,16 @@ class _MetricStrip extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           HomeHeading(
-            title: 'I tuoi parametri di salute',
+            title: tr('I tuoi parametri di salute', 'Your health metrics'),
             icon: Icons.favorite,
             action: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
                 Tooltip(
-                  message: 'Ultimo aggiornamento: ${day.syncedAt.toLocal()}',
+                  message: tr(
+                    'Ultimo aggiornamento: ${day.syncedAt.toLocal()}',
+                    'Last update: ${day.syncedAt.toLocal()}',
+                  ),
                   child: const Icon(
                     Icons.schedule,
                     size: 15,
@@ -762,23 +830,36 @@ class _MetricStrip extends StatelessWidget {
                   ),
                 ),
                 IconButton(
-                  tooltip: 'Aggiorna dati salute',
+                  tooltip: tr('Aggiorna dati salute', 'Refresh health data'),
                   onPressed: onRefresh,
                   icon: const Icon(Icons.refresh, size: 18),
                 ),
                 PopupMenuButton<String>(
-                  tooltip: 'Dettagli e dati manuali',
+                  tooltip: tr(
+                    'Dettagli e dati manuali',
+                    'Details and manual data',
+                  ),
                   onSelected: (action) => action == 'details'
                       ? _showHealthDetails(context, day)
                       : onMindfulness(),
                   itemBuilder: (_) => [
-                    const PopupMenuItem(
+                    PopupMenuItem(
                       value: 'details',
-                      child: Text('Dettagli salute e allenamenti'),
+                      child: Text(
+                        tr(
+                          'Dettagli salute e allenamenti',
+                          'Health and workout details',
+                        ),
+                      ),
                     ),
-                    const PopupMenuItem(
+                    PopupMenuItem(
                       value: 'mindfulness',
-                      child: Text('Inserisci minuti mindfulness'),
+                      child: Text(
+                        tr(
+                          'Inserisci minuti mindfulness',
+                          'Add mindfulness minutes',
+                        ),
+                      ),
                     ),
                   ],
                   icon: const Icon(Icons.more_horiz, size: 18),
@@ -787,10 +868,13 @@ class _MetricStrip extends StatelessWidget {
             ),
           ),
           if (items.isEmpty)
-            const Padding(
+            Padding(
               padding: EdgeInsets.symmetric(vertical: 10),
               child: Text(
-                'Nessun parametro valido per questa giornata.',
+                tr(
+                  'Nessun parametro valido per questa giornata.',
+                  'No valid metrics for this day.',
+                ),
                 style: TextStyle(fontSize: 12),
               ),
             )
@@ -822,10 +906,7 @@ class _MetricStrip extends StatelessWidget {
   }
 }
 
-String _integer(int value) => value.toString().replaceAllMapped(
-  RegExp(r'(\d)(?=(\d{3})+(?!\d))'),
-  (m) => '${m[1]}.',
-);
+String _integer(int value) => thousands(value);
 
 class _MetricTile extends StatelessWidget {
   const _MetricTile({required this.metric});
@@ -887,7 +968,10 @@ class _MetricTile extends StatelessWidget {
         const Spacer(),
         if (metric.trend.where((n) => n.isFinite).length >= 2)
           Tooltip(
-            message: 'Campioni disponibili, senza date associate.',
+            message: tr(
+              'Campioni disponibili, senza date associate.',
+              'Samples available, without dates.',
+            ),
             child: SizedBox(
               height: 25,
               width: double.infinity,
@@ -965,9 +1049,12 @@ class SleepHypnogram extends StatelessWidget {
     final valid = stages.where((s) => s.endTime.isAfter(s.startTime)).toList()
       ..sort((a, b) => a.startTime.compareTo(b.startTime));
     if (valid.isEmpty) {
-      return const Center(
+      return Center(
         child: Text(
-          'Le fasi temporali della notte non sono disponibili.',
+          tr(
+            'Le fasi temporali della notte non sono disponibili.',
+            'The night’s stages aren’t available.',
+          ),
           textAlign: TextAlign.center,
           style: TextStyle(fontSize: 12),
         ),
@@ -978,8 +1065,10 @@ class SleepHypnogram extends StatelessWidget {
         .map((s) => s.endTime)
         .reduce((a, b) => a.isAfter(b) ? a : b);
     return Semantics(
-      label:
-          'Ipnogramma: ${valid.length} intervalli registrati, dalle ${_time(start)} alle ${_time(end)}. Le fasi non classificate restano vuote.',
+      label: tr(
+        'Ipnogramma: ${valid.length} intervalli registrati, dalle ${_time(start)} alle ${_time(end)}. Le fasi non classificate restano vuote.',
+        'Hypnogram: ${valid.length} intervals recorded, from ${_time(start)} to ${_time(end)}. Unclassified stages stay empty.',
+      ),
       child: CustomPaint(
         key: const ValueKey('fitbit-sleep-timeline'),
         painter: _HypnogramPainter(
@@ -1004,7 +1093,12 @@ class _HypnogramPainter extends CustomPainter {
   final List<FitbitSleepStage> stages;
   final DateTime start, end;
   final Color textColor;
-  static const labels = ['Sveglio', 'REM', 'Leggero', 'Profondo'];
+  static List<String> get labels => [
+    tr('Sveglio', 'Awake'),
+    'REM',
+    tr('Leggero', 'Light'),
+    tr('Profondo', 'Deep'),
+  ];
   static const colors = [
     Color(0xFFF071BD),
     Color(0xFFB063EF),
@@ -1114,10 +1208,10 @@ void _showHealthDetails(BuildContext context, FitbitDay day) {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               HomeHeading(
-                title: 'Salute · ${day.date}',
+                title: tr('Salute · ${day.date}', 'Health · ${day.date}'),
                 icon: Icons.favorite_outline,
                 action: IconButton(
-                  tooltip: 'Chiudi',
+                  tooltip: tr('Chiudi', 'Close'),
                   onPressed: () => Navigator.pop(context),
                   icon: const Icon(Icons.close),
                 ),
@@ -1129,13 +1223,19 @@ void _showHealthDetails(BuildContext context, FitbitDay day) {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       Text(
-                        'Fitbit / Google Health · aggiornato ${day.syncedAt.toLocal()}',
+                        tr(
+                          'Fitbit / Google Health · aggiornato ${day.syncedAt.toLocal()}',
+                          'Fitbit / Google Health · updated ${day.syncedAt.toLocal()}',
+                        ),
                         style: const TextStyle(fontSize: 12),
                       ),
                       if (day.sleepStages.isNotEmpty) ...[
                         const SizedBox(height: 24),
-                        const Text(
-                          'La notte, fase per fase',
+                        Text(
+                          tr(
+                            'La notte, fase per fase',
+                            'The night, stage by stage',
+                          ),
                           style: TextStyle(
                             fontWeight: FontWeight.w600,
                             color: AppColors.text,
@@ -1151,8 +1251,8 @@ void _showHealthDetails(BuildContext context, FitbitDay day) {
                         ),
                         const SizedBox(height: 12),
                         ExpansionTile(
-                          title: const Text(
-                            'Intervalli registrati',
+                          title: Text(
+                            tr('Intervalli registrati', 'Recorded intervals'),
                             style: TextStyle(fontSize: 13),
                           ),
                           children: [
@@ -1190,27 +1290,30 @@ void _showHealthDetails(BuildContext context, FitbitDay day) {
                                 value: durationLabel(
                                   day.sleepDetails!.stageMinutes.light,
                                 ),
-                                label: 'Leggero',
+                                label: tr('Leggero', 'Light'),
                               ),
                             if (day.sleepDetails!.stageMinutes.deep > 0)
                               _Fact(
                                 value: durationLabel(
                                   day.sleepDetails!.stageMinutes.deep,
                                 ),
-                                label: 'Profondo',
+                                label: tr('Profondo', 'Deep'),
                               ),
                             if (day.sleepDetails!.minutesAwake > 0)
                               _Fact(
                                 value: '${day.sleepDetails!.minutesAwake} min',
-                                label: 'Sveglio',
+                                label: tr('Sveglio', 'Awake'),
                               ),
                           ],
                         ),
                       ],
                       if (day.heartProfile.isNotEmpty) ...[
                         const SizedBox(height: 24),
-                        const Text(
-                          'Frequenza cardiaca · profilo del giorno',
+                        Text(
+                          tr(
+                            'Frequenza cardiaca · profilo del giorno',
+                            'Heart rate · daily profile',
+                          ),
                           style: TextStyle(
                             fontWeight: FontWeight.w600,
                             color: AppColors.text,
@@ -1229,13 +1332,16 @@ void _showHealthDetails(BuildContext context, FitbitDay day) {
                       )) ...[
                         const SizedBox(height: 20),
                         Text(
-                          'Tempo sedentario rilevato: ${durationLabel(day.sedentaryMinutes!)}',
+                          tr(
+                            'Tempo sedentario rilevato: ${durationLabel(day.sedentaryMinutes!)}',
+                            'Sedentary time: ${durationLabel(day.sedentaryMinutes!)}',
+                          ),
                         ),
                       ],
                       if (day.workouts.isNotEmpty) ...[
                         const SizedBox(height: 24),
-                        const Text(
-                          'Allenamenti registrati',
+                        Text(
+                          tr('Allenamenti registrati', 'Recorded workouts'),
                           style: TextStyle(
                             fontWeight: FontWeight.w600,
                             color: AppColors.text,
@@ -1250,15 +1356,21 @@ void _showHealthDetails(BuildContext context, FitbitDay day) {
                             ),
                             title: Text(workout.name ?? workout.type),
                             subtitle: Text(
-                              '${_time(workout.startTime)} · ${workout.activeMinutes} min${workout.averageHeartRate == null ? '' : ' · FC media ${workout.averageHeartRate} bpm'}${workout.distanceKm == null ? '' : ' · ${workout.distanceKm!.toStringAsFixed(2)} km'}${workout.calories == null ? '' : ' · ${workout.calories} kcal'}',
+                              '${_time(workout.startTime)} · ${workout.activeMinutes} min${workout.averageHeartRate == null ? '' : ' · ${tr('FC media', 'avg HR')} ${workout.averageHeartRate} bpm'}${workout.distanceKm == null ? '' : ' · ${workout.distanceKm!.toStringAsFixed(2)} km'}${workout.calories == null ? '' : ' · ${workout.calories} kcal'}',
                             ),
                           ),
                       ],
                       const SizedBox(height: 24),
                       Text(
                         day.finalized
-                            ? 'Giornata conclusa · dato archiviato'
-                            : 'Giornata in corso · dati in aggiornamento',
+                            ? tr(
+                                'Giornata conclusa · dato archiviato',
+                                'Day complete · data archived',
+                              )
+                            : tr(
+                                'Giornata in corso · dati in aggiornamento',
+                                'Day in progress · data updating',
+                              ),
                         style: const TextStyle(fontSize: 11),
                       ),
                     ],
@@ -1274,13 +1386,13 @@ void _showHealthDetails(BuildContext context, FitbitDay day) {
 }
 
 String _stageName(String type) => switch (type.toLowerCase()) {
-  'awake' || 'wake' => 'Sveglio',
+  'awake' || 'wake' => tr('Sveglio', 'Awake'),
   'rem' => 'REM',
-  'light' => 'Leggero',
-  'deep' => 'Profondo',
-  'asleep' => 'Sonno non classificato',
-  'restless' => 'Agitato',
-  _ => 'Fase non classificata ($type)',
+  'light' => tr('Leggero', 'Light'),
+  'deep' => tr('Profondo', 'Deep'),
+  'asleep' => tr('Sonno non classificato', 'Unclassified sleep'),
+  'restless' => tr('Agitato', 'Restless'),
+  _ => tr('Fase non classificata ($type)', 'Unclassified stage ($type)'),
 };
 
 class _HeartTimeline extends CustomPainter {

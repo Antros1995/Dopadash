@@ -5,6 +5,7 @@ import '../../../../core/presentation/app_card.dart';
 import '../../../organizer/application/organizer_controller.dart';
 import '../../../organizer/domain/organizer_summary.dart';
 import 'home_components.dart';
+import '../../../../core/i18n/i18n.dart';
 
 /// Visione d'insieme dell'Organizzatore nella Home: quattro numeri e le cose
 /// da non perdere, in ordine di urgenza. Si legge soltanto; per modificare si
@@ -37,10 +38,25 @@ class _OrganizerSummaryCardState extends State<OrganizerSummaryCard> {
     builder: (context, _) {
       final s = widget.controller.summary;
       final stats = [
-        _Stat('Oggi', s.focus, AppColors.green, Icons.wb_sunny_outlined),
-        _Stat('Tocca a me', s.mine, _orange, Icons.person_outline),
-        _Stat('In attesa', s.waiting, _purple, Icons.schedule),
-        _Stat('In scadenza', s.due, AppColors.danger, Icons.event_outlined),
+        _Stat(
+          tr('Oggi', 'Today'),
+          s.focus,
+          AppColors.green,
+          Icons.wb_sunny_outlined,
+        ),
+        _Stat(
+          tr('Tocca a me', 'My move'),
+          s.mine,
+          _orange,
+          Icons.person_outline,
+        ),
+        _Stat(tr('In attesa', 'Waiting'), s.waiting, _purple, Icons.schedule),
+        _Stat(
+          tr('In scadenza', 'Due'),
+          s.due,
+          AppColors.danger,
+          Icons.event_outlined,
+        ),
       ];
       final list = s.items.isEmpty
           ? Align(
@@ -49,8 +65,14 @@ class _OrganizerSummaryCardState extends State<OrganizerSummaryCard> {
                 padding: const EdgeInsets.symmetric(vertical: 8),
                 child: Text(
                   s.open == 0
-                      ? 'Nessuna casella aperta. Apri l’Organizzatore per scrivere la prima.'
-                      : 'Niente di urgente: nessuna scadenza e nessun sollecito.',
+                      ? tr(
+                          'Nessuna casella aperta. Apri l’Organizzatore per scrivere la prima.',
+                          'No open boxes. Open the Organizer to write the first one.',
+                        )
+                      : tr(
+                          'Niente di urgente: nessuna scadenza e nessun sollecito.',
+                          'Nothing urgent: no deadlines and no nudges.',
+                        ),
                   style: const TextStyle(fontSize: 12),
                 ),
               ),
@@ -76,15 +98,21 @@ class _OrganizerSummaryCardState extends State<OrganizerSummaryCard> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             HomeHeading(
-              title: 'Organizzatore',
+              title: tr('Organizzatore', 'Organizer'),
               icon: Icons.sticky_note_2_outlined,
-              action: HomeLink(label: 'Apri ›', onTap: widget.onOpen),
+              action: HomeLink(
+                label: tr('Apri ›', 'Open ›'),
+                onTap: widget.onOpen,
+              ),
             ),
             if (widget.controller.hasRemote && !widget.controller.synced)
-              const Padding(
+              Padding(
                 padding: EdgeInsets.only(bottom: 4),
                 child: Text(
-                  'Solo su questo dispositivo · sincronizzazione non attiva',
+                  tr(
+                    'Solo su questo dispositivo · sincronizzazione non attiva',
+                    'Only on this device · sync is off',
+                  ),
                   style: TextStyle(fontSize: 10, color: AppColors.textMuted),
                 ),
               ),
@@ -173,16 +201,16 @@ class _MilestoneChip extends StatelessWidget {
   /// Tempo mancante in giorni, mesi o anni, come nell'Organizzatore:
   /// "5 giorni", "3 mesi", "oggi", "2 giorni fa".
   static String countdown(int days) {
-    if (days == 0) return 'oggi';
+    if (days == 0) return tr('oggi', 'today');
     final a = days.abs();
     final months = (a / 30.44).round().clamp(1, 12);
     final years = (a / 365).round().clamp(1, 999);
     final text = a < 31
-        ? '$a ${a == 1 ? 'giorno' : 'giorni'}'
+        ? '$a ${a == 1 ? tr('giorno', 'day') : tr('giorni', 'days')}'
         : a < 365
-        ? '$months ${months == 1 ? 'mese' : 'mesi'}'
-        : '$years ${years == 1 ? 'anno' : 'anni'}';
-    return days < 0 ? '$text fa' : text;
+        ? '$months ${months == 1 ? tr('mese', 'month') : tr('mesi', 'months')}'
+        : '$years ${years == 1 ? tr('anno', 'year') : tr('anni', 'years')}';
+    return days < 0 ? tr('$text fa', '$text ago') : text;
   }
 
   @override
@@ -316,16 +344,21 @@ class _Row extends StatelessWidget {
   Widget build(BuildContext context) {
     final color = Color(item.color);
     final (String label, Color tone) = switch (item.reason) {
-      OrganizerReason.focus => ('Oggi', AppColors.green),
+      OrganizerReason.focus => (tr('Oggi', 'Today'), AppColors.green),
       OrganizerReason.due => (
-        item.late ? 'Scaduta ${_date(item.due)}' : 'Scade oggi',
+        item.late
+            ? tr('Scaduta ${_date(item.due)}', 'Overdue ${_date(item.due)}')
+            : tr('Scade oggi', 'Due today'),
         AppColors.danger,
       ),
       OrganizerReason.nudge => (
-        'Sollecita ${item.who}',
+        tr('Sollecita ${item.who}', 'Nudge ${item.who}'),
         const Color(0xFFE08600),
       ),
-      OrganizerReason.next => ('Prossimo passo', AppColors.textMuted),
+      OrganizerReason.next => (
+        tr('Prossimo passo', 'Next step'),
+        AppColors.textMuted,
+      ),
     };
     return InkWell(
       onTap: onTap,
@@ -361,7 +394,10 @@ class _Row extends StatelessWidget {
                   ),
                   Text(
                     item.reason != OrganizerReason.nudge && item.who.isNotEmpty
-                        ? '${item.project} · aspetto ${item.who}'
+                        ? tr(
+                            '${item.project} · aspetto ${item.who}',
+                            '${item.project} · waiting for ${item.who}',
+                          )
                         : item.project,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
