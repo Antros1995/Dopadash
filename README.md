@@ -7,7 +7,7 @@ rewards every small step with a little hit of dopamine.
 > 🇬🇧 🇮🇹 **English and Italian.** The app follows your browser language, and you
 > can switch any time from *Account & settings*.
 
-[Uploading dopadash-demo-en.webm…]()
+[dopadash-demo-en.webm](https://github.com/user-attachments/assets/98380361-a12d-4d69-b573-8c8d224b24f8)
 
 ![DopaDash dashboard: sleep stages, recovery, health metrics, today's habits, calendar and tasks](docs/screenshots/home.png)
 
